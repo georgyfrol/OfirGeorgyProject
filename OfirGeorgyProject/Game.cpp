@@ -1,37 +1,22 @@
 #include "Game.h"
+#include "io_utils.h"
 #include <conio.h>  // For _kbhit and _getch
 #include <windows.h> // For gotoxy and Sleep
 #include <cstdlib>  // For system("cls")
 
-// --- Console Utility Definitions ---
-
-// Moves the cursor to (x, y) coordinates for precise printing.
-void Game::gotoxy(int x, int y) {
-    COORD dwCursorPosition;
-    dwCursorPosition.X = x;
-    dwCursorPosition.Y = y;
-
-    cout.flush();
-
-    HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleCursorPosition(hConsoleOutput, dwCursorPosition);
-}
-
-// Clears the console screen.
-void Game::clrscr() {
-    system("cls");
-}
 
 // --- Game Logic Implementations ---
 
 void Game::runGame() {
     gameActive = true;
     // Placeholder for the main game loop from Exercise 1
-    clrscr();
-    gotoxy(25, 12);
-    cout << "--- Game Started (Placeholder) ---";
-    gotoxy(25, 14);
-    cout << "Press ESC to pause...";
+    clear_screen(); 
+
+    p1.init(5, 5, '$', 'w', 'x', 'a', 'd', 's', 'e');
+    p2.init(70, 10, '&', 'i', 'm', 'j', 'l', 'k', 'o');
+
+    p1.draw();
+    p2.draw();
 
     while (gameActive) {
         if (_kbhit()) {
@@ -40,22 +25,28 @@ void Game::runGame() {
                 // TODO: Replace with call to pauseGame() once implemented
                 gameActive = false; // Exit game loop for now
             }
+            else {
+                p1.setDirection(key);
+                p2.setDirection(key);
+            }
         }
+        p1.move();
+        p2.move();
         Sleep(100);
     }
 }
 
 void Game::displayInstructions() {
-    clrscr();
+    clear_screen();
     gotoxy(10, 3); cout << "--- Instructions and Keys ---";
-    gotoxy(10, 5); cout << "P1: W/A/S/D (UP/LEFT/STAY/RIGHT) | P2: I/J/K/L (UP/LEFT/STAY/RIGHT)";
+    gotoxy(10, 5); cout << "P1: W/X/A/S/D/E (UP/DOWN/LEFT/STAY/RIGHT/DISPOSE) | P2: I/M/J/K/L/O (UP/DOWN/LEFT/STAY/RIGHT/DISPOS)";
     gotoxy(10, 6); cout << "Elements: Wall (W), Key (K), Door (1-9), Spring (#), Obstacle (*), Torch (!)";
     gotoxy(10, 8); cout << "Press any key to return to the menu...";
     _getch(); // Wait for a key press
 }
 
 void Game::displayMenu() {
-    clrscr();
+    clear_screen();
     gotoxy(30, 5);  cout << "--- MTA Text Adventure World ---";
     gotoxy(30, 8);  cout << "(1) Start a new game";
     gotoxy(30, 9);  cout << "(8) Present instructions and keys";
@@ -64,6 +55,7 @@ void Game::displayMenu() {
 }
 
 void Game::run() {
+    hideCursor();
     while (isRunning) {
         displayMenu();
 
@@ -91,7 +83,7 @@ void Game::run() {
     }
 
     // Clean exit
-    clrscr();
+    clear_screen();
     gotoxy(0, 0);
     cout << "Program finished normally." << endl;
 }

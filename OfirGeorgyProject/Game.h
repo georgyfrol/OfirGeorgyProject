@@ -1,5 +1,8 @@
 #pragma once
 #include <iostream>
+#include "io_utils.h"
+#include "Player.h"
+
 
 using namespace std;
 
@@ -10,9 +13,7 @@ private:
     bool isRunning = true;
     bool gameActive = false;
 
-    // Console Utility Functions (Defined in Game.cpp)
-    void gotoxy(int x, int y);
-    void clrscr();
+    Player p1, p2;
 
     // Game Logic
     void runGame();
