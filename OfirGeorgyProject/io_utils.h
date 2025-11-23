@@ -11,6 +11,8 @@ using namespace std;
 
 void gotoxy(int x, int y);
 void setTextColor(Color);
+void setColorMode(bool isActive);
+bool isColorMode();
 void hideCursor();
 void clear_screen();
 

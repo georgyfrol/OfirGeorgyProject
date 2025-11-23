@@ -49,8 +49,9 @@ void Game::displayMenu() {
     clear_screen();
     gotoxy(30, 5);  cout << "--- MTA Text Adventure World ---";
     gotoxy(30, 8);  cout << "(1) Start a new game";
-    gotoxy(30, 9);  cout << "(8) Present instructions and keys";
-    gotoxy(30, 10); cout << "(9) EXIT";
+    gotoxy(30, 9);  cout << "(2) Toggle Colors:" << (isColorMode() ? "ON" : "OFF");
+    gotoxy(30, 10);  cout << "(8) Present instructions and keys";
+    gotoxy(30, 11); cout << "(9) EXIT";
     gotoxy(30, 13); cout << "Enter choice: ";
 }
 
@@ -69,6 +70,9 @@ void Game::run() {
         switch (choice) {
         case '1': // Start New Game
             runGame();
+            break;
+        case '2': //Toggle Colors
+            setColorMode(!isColorMode());
             break;
         case '8': // Instructions
             displayInstructions();

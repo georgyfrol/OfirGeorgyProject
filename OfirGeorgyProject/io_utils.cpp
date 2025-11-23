@@ -3,6 +3,23 @@
 
 using namespace std;
 
+static bool colorEnabled = true;
+
+void setColorMode(bool isActive) {
+	colorEnabled = isActive;
+}
+
+bool isColorMode() {
+	return colorEnabled;
+}
+
+void setTextColor(Color colorToSet) {//if in no colors mode then white
+	if (!colorEnabled) {
+		colorToSet = Color::WHITE;
+	}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)colorToSet);
+}
+
 void gotoxy(int x, int y)
 {
 	HANDLE hConsoleOutput;
@@ -12,10 +29,6 @@ void gotoxy(int x, int y)
 	dwCursorPosition.Y = y;
 	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(hConsoleOutput, dwCursorPosition);
-}
-
-void setTextColor(Color colorToSet) {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)colorToSet);
 }
 
 void hideCursor()
