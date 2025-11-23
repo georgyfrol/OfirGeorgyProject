@@ -12,8 +12,8 @@ void Game::runGame() {
     // Placeholder for the main game loop from Exercise 1
     clear_screen(); 
 
-    p1.init(5, 5, '$', 'w', 'x', 'a', 'd', 's', 'e');
-    p2.init(70, 10, '&', 'i', 'm', 'j', 'l', 'k', 'o');
+    p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
+    p2.init(70, 10, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
 
     p1.draw();
     p2.draw();
@@ -39,7 +39,7 @@ void Game::runGame() {
 void Game::displayInstructions() {
     clear_screen();
     gotoxy(10, 3); cout << "--- Instructions and Keys ---";
-    gotoxy(10, 5); cout << "P1: W/X/A/S/D/E (UP/DOWN/LEFT/STAY/RIGHT/DISPOSE) | P2: I/M/J/K/L/O (UP/DOWN/LEFT/STAY/RIGHT/DISPOS)";
+    gotoxy(10, 5); cout << "P1: W/X/A/S/D/E (UP/DOWN/LEFT/STAY/RIGHT/DISPOSE) | P2: I/M/J/K/L/O (UP/DOWN/LEFT/STAY/RIGHT/DISPOSE)";
     gotoxy(10, 6); cout << "Elements: Wall (W), Key (K), Door (1-9), Spring (#), Obstacle (*), Torch (!)";
     gotoxy(10, 8); cout << "Press any key to return to the menu...";
     _getch(); // Wait for a key press

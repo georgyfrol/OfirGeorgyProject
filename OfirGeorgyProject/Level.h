@@ -14,7 +14,7 @@ public:
 	void init();
 
 	// Print the whole board (only called once at the start)
-	void printBoard();
+	void printLevel();
 
 	// Returns the character at a specific position (for collision detection)
 	char getCharAt(int x, int y);

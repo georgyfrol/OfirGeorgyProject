@@ -1,19 +1,22 @@
 #include "Player.h"
 #include "io_utils.h"
 #include "Level.h"
+#include "Color.h"
 #include <iostream>
 #include <cctype>   // for tolower function
 
 using namespace std;
 
-void Player::init(int startX, int startY, char sym, char kU, char kD, char kL, char kR, char kS, char kE) {
+void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, char kL, char kR, char kS, char kE) {
     x = startX;
     y = startY;
     symbol = sym;
+    color = c;
 
     dir_x = 0;
     dir_y = 0;
-
+    
+    //using tolower function to always stay on lower case keys
     keyUp = tolower(kU);
     keyDown = tolower(kD);
     keyLeft = tolower(kL);
@@ -48,11 +51,14 @@ void Player::erase() {
 }
 
 void Player::draw() {
+    setTextColor(color);
     gotoxy(x, y);
     cout << symbol;
+    setTextColor(WHITE);
 }
 
-void Player::move() {
+void Player::move() { //players' movments with wrap-around
+                      //HEIGHT and WIDTH are from Level.h 
     if (dir_x == 0 && dir_y == 0) return;
 
     erase();
