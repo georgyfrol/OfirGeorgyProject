@@ -3,7 +3,7 @@
 
 enum Color
 {
-	BLACK = 0,// check
+	BLACK = 0,// check++
 	BLUE = 1,
 	GREEN = 2,
 	CYAN = 3,
