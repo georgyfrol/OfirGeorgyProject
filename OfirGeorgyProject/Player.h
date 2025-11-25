@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Color.h"
+#include "Level.h"
+
 class Player {
 private:
     int x, y;

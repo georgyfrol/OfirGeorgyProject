@@ -12,6 +12,9 @@ void Game::runGame() {
     // Placeholder for the main game loop from Exercise 1
     clear_screen(); 
 
+    level.init();
+    level.printLevel();
+
     p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(70, 10, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
 

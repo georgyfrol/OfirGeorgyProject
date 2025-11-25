@@ -2,6 +2,7 @@
 #include <iostream>
 #include "io_utils.h"
 #include "Player.h"
+#include "Level.h"
 
 
 using namespace std;
@@ -14,6 +15,7 @@ private:
     bool gameActive = false;
 
     Player p1, p2;
+    Level level;
 
     // Game Logic
     void runGame();

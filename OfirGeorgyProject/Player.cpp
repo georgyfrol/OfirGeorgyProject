@@ -66,18 +66,18 @@ void Player::move() { //players' movments with wrap-around
     x += dir_x;
     y += dir_y;
     
-    if (x < 1) {
+    if (x < 0) {
         x = WIDTH - 1;
     }
     else if (x >= WIDTH) {
-        x = 1;
+        x = 0;
     }
 
-    if (y < 1) {
+    if (y < 0) {
         y = HEIGHT - 1;
     }
     else if (y >= HEIGHT) {
-        y = 1;
+        y = 0;
     }
 
     draw();

@@ -4,7 +4,7 @@
 const int HEIGHT = 25;
 const int WIDTH = 80;
 
-class Board {
+class Level {
 	// 2D array for the map. 
 	// We use 'char' to represent walls ('W'), spaces (' '), etc.
 	char map[HEIGHT][WIDTH + 1]; // +1 for null terminator if using strings
