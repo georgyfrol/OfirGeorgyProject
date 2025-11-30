@@ -27,13 +27,15 @@ void Game::runGame() {
         if (_kbhit()) {
             char key = _getch();
             if (key == 27) { // ESC key
-                // TODO: Replace with call to pauseGame() once implemented
-                gameActive = false; // Exit game loop for now
+                bool resume = pauseGame();
+                if (resume == false)
+                    gameActive = false;
             }
             else {
-                if (key == 'e')
+                char lowKey = tolower(key);
+                if (lowKey == 'e')
                     p1.dispose(level);
-                else if (key == 'o')
+                else if (lowKey == 'o')
                     p2.dispose(level);
                 else {
                     p1.setDirection(key);
@@ -44,9 +46,16 @@ void Game::runGame() {
         p1.move(level);
         p2.move(level);
 
-        gotoxy(0, HEIGHT + 1);
-        cout << "Player 1 inventory: " << (p1.getInventory() ? p1.getInventory() : ' ') << "   ";
-        cout << "Player 2 inventory: " << (p2.getInventory() ? p2.getInventory() : ' ') << "   ";
+        gotoxy(0, HEIGHT);
+        setTextColor(Color::LIGHTGREEN);
+        cout << "Player 1 inventory: ";
+        setTextColor(Color::WHITE);
+        cout << (p1.getInventory() ? p1.getInventory() : ' ');
+        cout << "                                      ";
+        setTextColor(Color::LIGHTMAGENTA);
+        cout << "Player 2 inventory: ";
+        setTextColor(Color::WHITE);
+        cout << (p2.getInventory() ? p2.getInventory() : ' ');
         Sleep(100);
     }
 }
@@ -108,4 +117,25 @@ void Game::run() {
 }
 
 // Placeholder for pause logic (will be implemented in a later step)
-void Game::pauseGame() {}
+bool Game::pauseGame() {
+    gotoxy(0, HEIGHT);
+    cout << "                                                                               ";
+    gotoxy(3, HEIGHT);
+    setTextColor(Color::YELLOW);
+    cout << "Game paused, press ESC again to continue or X to go back to the main menu";
+    setTextColor(Color::WHITE);
+
+    while (true) {
+        if (_kbhit()) {
+            char key = _getch();
+            if (key == 27) {
+                gotoxy(3, HEIGHT);
+                cout << "                                                                               ";
+                return true;
+            }
+            char lowKey = tolower(key);
+            if (lowKey == 'x') return false;
+        }
+        Sleep(100);
+    }
+}

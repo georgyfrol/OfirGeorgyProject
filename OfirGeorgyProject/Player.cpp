@@ -105,6 +105,7 @@ void Player::dispose(Level& level) {
         if (level.getCharAt(x, y) == ' ') {
             level.setCharAt(x, y, inventory);
             inventory = 0;
+            draw();
         }
     }
 }
