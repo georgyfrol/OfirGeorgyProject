@@ -33,8 +33,8 @@ void Game::runGame() {
                 p2.setDirection(key);
             }
         }
-        p1.move();
-        p2.move();
+        p1.move(level);
+        p2.move(level);
         Sleep(100);
     }
 }

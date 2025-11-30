@@ -18,7 +18,7 @@ public:
 
     void setDirection(char key);
 
-    void move();
+    void move(Level& level);
 
     void draw();
 

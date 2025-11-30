@@ -57,28 +57,34 @@ void Player::draw() {
     setTextColor(WHITE);
 }
 
-void Player::move() { //players' movments with wrap-around
+void Player::move(Level& level) { //players' movments with wrap-around
                       //HEIGHT and WIDTH are from Level.h 
     if (dir_x == 0 && dir_y == 0) return;
 
-    erase();
+    int next_x = x + dir_x;
+    int next_y = y + dir_y;
 
-    x += dir_x;
-    y += dir_y;
+    if (next_x < 0)
+        next_x = WIDTH - 1;
+    else if (next_x >= WIDTH)
+        next_x = 0;
+
+    if (next_y < 0)
+        next_x = HEIGHT - 1;
+    else if (next_y >= HEIGHT)
+        next_y = 0;
+
+    char nextCell = level.getCharAt(next_x, next_y);
+
+    if (nextCell == 'W') {
+        dir_x = 0;
+        dir_y = 0;
+    }
+    else {
+        erase();
+        x = next_x;
+        y = next_y;
+        draw();
+    }
     
-    if (x < 0) {
-        x = WIDTH - 1;
-    }
-    else if (x >= WIDTH) {
-        x = 0;
-    }
-
-    if (y < 0) {
-        y = HEIGHT - 1;
-    }
-    else if (y >= HEIGHT) {
-        y = 0;
-    }
-
-    draw();
 }
