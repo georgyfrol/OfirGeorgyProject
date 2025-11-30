@@ -53,3 +53,11 @@ char Level::getCharAt(int x, int y) {
     }
     return map[y][x];
 }
+
+void Level::setCharAt(int x, int y, char c) {
+    if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
+        map[y][x] = c;
+        gotoxy(x, y);
+        cout << c;
+    }
+}

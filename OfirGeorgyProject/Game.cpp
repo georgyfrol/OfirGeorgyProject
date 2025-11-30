@@ -13,6 +13,8 @@ void Game::runGame() {
     clear_screen(); 
 
     level.init();
+    level.setCharAt(8, 15, 'K');
+    level.setCharAt(60, 15, 'K');
     level.printLevel();
 
     p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
@@ -29,12 +31,22 @@ void Game::runGame() {
                 gameActive = false; // Exit game loop for now
             }
             else {
-                p1.setDirection(key);
-                p2.setDirection(key);
+                if (key == 'e')
+                    p1.dispose(level);
+                else if (key == 'o')
+                    p2.dispose(level);
+                else {
+                    p1.setDirection(key);
+                    p2.setDirection(key);
+                }
             }
         }
         p1.move(level);
         p2.move(level);
+
+        gotoxy(0, HEIGHT + 1);
+        cout << "Player 1 inventory: " << (p1.getInventory() ? p1.getInventory() : ' ') << "   ";
+        cout << "Player 2 inventory: " << (p2.getInventory() ? p2.getInventory() : ' ') << "   ";
         Sleep(100);
     }
 }

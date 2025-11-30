@@ -10,8 +10,8 @@ private:
     char symbol;
     char keyUp, keyDown, keyLeft, keyRight, keyStay, keyDispose;
     Color color;
-
-    void erase();
+    char inventory = 0;
+    void erase(Level& level);
 
 public:
     void init(int startX, int startY, char sym, Color c, char kU, char kD, char kL, char kR, char kS, char kE);
@@ -22,6 +22,10 @@ public:
 
     void draw();
 
+    void dispose(Level& level);
+
     int getX() const { return x; }
     int getY() const { return y; }
+
+    char getInventory() const { return inventory; }
 };

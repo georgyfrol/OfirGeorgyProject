@@ -12,9 +12,10 @@ void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, c
     y = startY;
     symbol = sym;
     color = c;
-
     dir_x = 0;
     dir_y = 0;
+    inventory = 0;
+
     
     //using tolower function to always stay on lower case keys
     keyUp = tolower(kU);
@@ -27,6 +28,8 @@ void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, c
 
 void Player::setDirection(char key) {
     key = tolower(key);
+
+    if (key == keyDispose) return;
 
     if (key == keyUp) {
         dir_x = 0; dir_y = -1;
@@ -45,9 +48,12 @@ void Player::setDirection(char key) {
     }
 }
 
-void Player::erase() {
+void Player::erase(Level& level) {
     gotoxy(x, y);
-    cout << ' ';
+    char cell = level.getCharAt(x, y);
+
+    if (cell == ' ') cout << ' ';
+    else cout << cell;
 }
 
 void Player::draw() {
@@ -58,7 +64,7 @@ void Player::draw() {
 }
 
 void Player::move(Level& level) { //players' movments with wrap-around
-                      //HEIGHT and WIDTH are from Level.h 
+                                  //HEIGHT and WIDTH are from Level.h 
     if (dir_x == 0 && dir_y == 0) return;
 
     int next_x = x + dir_x;
@@ -70,7 +76,7 @@ void Player::move(Level& level) { //players' movments with wrap-around
         next_x = 0;
 
     if (next_y < 0)
-        next_x = HEIGHT - 1;
+        next_y = HEIGHT - 1;
     else if (next_y >= HEIGHT)
         next_y = 0;
 
@@ -81,10 +87,24 @@ void Player::move(Level& level) { //players' movments with wrap-around
         dir_y = 0;
     }
     else {
-        erase();
+        if (nextCell == 'K' || nextCell == '@' || nextCell == '!') {
+            if (inventory == 0) {
+                inventory = nextCell;
+                level.setCharAt(next_x, next_y, ' ');
+            }
+        }
+        erase(level);
         x = next_x;
         y = next_y;
         draw();
     }
-    
+}
+
+void Player::dispose(Level& level) {
+    if (inventory != 0) {
+        if (level.getCharAt(x, y) == ' ') {
+            level.setCharAt(x, y, inventory);
+            inventory = 0;
+        }
+    }
 }
