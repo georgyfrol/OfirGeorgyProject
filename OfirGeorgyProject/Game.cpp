@@ -12,13 +12,11 @@ void Game::runGame() {
     // Placeholder for the main game loop from Exercise 1
     clear_screen(); 
 
-    level.init();
-    level.setCharAt(8, 15, 'K');
-    level.setCharAt(60, 15, 'K');
+    level.init(1);
     level.printLevel();
 
-    p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
-    p2.init(70, 10, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
+    p1.init(5,  5, '$', Color::LIGHTGREEN,   'w', 'x', 'a', 'd', 's', 'e');
+    p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
 
     p1.draw();
     p2.draw();
@@ -44,7 +42,9 @@ void Game::runGame() {
             }
         }
         p1.move(level);
+        p2.draw();
         p2.move(level);
+        p1.draw();
 
         gotoxy(0, HEIGHT);
         setTextColor(Color::LIGHTGREEN);
@@ -62,10 +62,16 @@ void Game::runGame() {
 
 void Game::displayInstructions() {
     clear_screen();
-    gotoxy(10, 3); cout << "--- Instructions and Keys ---";
-    gotoxy(10, 5); cout << "P1: W/X/A/S/D/E (UP/DOWN/LEFT/STAY/RIGHT/DISPOSE) | P2: I/M/J/K/L/O (UP/DOWN/LEFT/STAY/RIGHT/DISPOSE)";
-    gotoxy(10, 6); cout << "Elements: Wall (W), Key (K), Door (1-9), Spring (#), Obstacle (*), Torch (!)";
-    gotoxy(10, 8); cout << "Press any key to return to the menu...";
+    gotoxy(10, 3);  cout << "--- Instructions and Keys ---";
+    gotoxy(10, 5);  cout << "      Player 1    Player 2";
+    gotoxy(10, 6);  cout << "UP       W           I";
+    gotoxy(10, 7);  cout << "DOWN     X           M";
+    gotoxy(10, 8);  cout << "LEFT     A           J";
+    gotoxy(10, 9);  cout << "RIGHT    D           L";
+    gotoxy(10, 10); cout << "STAY     S           K";
+    gotoxy(10, 11); cout << "DISPOSE  E           O";
+    gotoxy(10, 13); cout << "Elements: Wall (W), Key (K), Door (1-9), Spring (#), Obstacle (*), Torch (!)";
+    gotoxy(10, 15); cout << "Press any key to return to the menu...";
     _getch(); // Wait for a key press
 }
 
@@ -122,7 +128,7 @@ bool Game::pauseGame() {
     cout << "                                                                               ";
     gotoxy(3, HEIGHT);
     setTextColor(Color::YELLOW);
-    cout << "Game paused, press ESC again to continue or X to go back to the main menu";
+    cout << "Game paused, press ESC again to continue or H to go back to the main menu";
     setTextColor(Color::WHITE);
 
     while (true) {
@@ -134,7 +140,7 @@ bool Game::pauseGame() {
                 return true;
             }
             char lowKey = tolower(key);
-            if (lowKey == 'x') return false;
+            if (lowKey == 'h') return false;
         }
         Sleep(100);
     }

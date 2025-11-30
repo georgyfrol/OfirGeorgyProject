@@ -5,13 +5,11 @@ const int HEIGHT = 25;
 const int WIDTH = 80;
 
 class Level {
-	// 2D array for the map. 
-	// we use 'char' to represent walls ('W'), spaces (' '), etc.
 	char map[HEIGHT][WIDTH + 1]; // +1 for null terminator if using strings
 
 public:
 	// initialize the hardcoded map
-	void init();
+	void init(int levelNum);
 
 	// Print the whole board (only called once at the start)
 	void printLevel();

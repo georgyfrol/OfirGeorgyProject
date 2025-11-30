@@ -13,6 +13,7 @@ class Game {
 private:
     bool isRunning = true;
     bool gameActive = false;
+    int currentLevelNum;
 
     Player p1, p2;
     Level level;

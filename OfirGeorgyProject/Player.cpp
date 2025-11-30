@@ -63,9 +63,9 @@ void Player::draw() {
     setTextColor(WHITE);
 }
 
-void Player::move(Level& level) { //players' movments with wrap-around
+char Player::move(Level& level) { //players' movments with wrap-around
                                   //HEIGHT and WIDTH are from Level.h 
-    if (dir_x == 0 && dir_y == 0) return;
+    if (dir_x == 0 && dir_y == 0) return ' ';
 
     int next_x = x + dir_x;
     int next_y = y + dir_y;
@@ -81,6 +81,23 @@ void Player::move(Level& level) { //players' movments with wrap-around
         next_y = 0;
 
     char nextCell = level.getCharAt(next_x, next_y);
+
+    if (isdigit(nextCell) && nextCell != '0') {
+        if (inventory == 'K') {
+            inventory = 0;
+            level.setCharAt(next_x, next_y, ' ');
+            erase(level);
+            x = next_x;
+            y = next_y;
+            draw();
+            return nextCell;
+        }
+        else {
+            dir_x = 0;
+            dir_y = 0;
+            return ' ';
+        }
+    }
 
     if (nextCell == 'W') {
         dir_x = 0;
@@ -98,6 +115,7 @@ void Player::move(Level& level) { //players' movments with wrap-around
         y = next_y;
         draw();
     }
+    return ' ';
 }
 
 void Player::dispose(Level& level) {
