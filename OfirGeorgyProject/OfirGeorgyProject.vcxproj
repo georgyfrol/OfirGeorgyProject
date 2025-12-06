@@ -127,6 +127,7 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="io_utils.h" />
+    <ClInclude Include="LevelData.h" />
     <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
