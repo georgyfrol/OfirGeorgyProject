@@ -118,14 +118,10 @@ char Player::move(Level& level) { //players' movments with wrap-around
     return ' ';
 }
 
-// Player.cpp
-
-// Signature update
 char Player::dispose(Level& level, int& outX, int& outY) {
     if (inventory != 0) {
         if (level.getCharAt(x, y) == ' ') {
 
-            // If it's a Bomb, we need to return its location to Game.cpp
             if (inventory == '@') {
                 level.setCharAt(x, y, inventory); // Place the bomb character on the map
                 outX = x;

@@ -33,7 +33,7 @@ void Game::runGame() {
                 char lowKey = tolower(key);
                 int disposedX, disposedY; // Variables to capture the item's disposal location
 
-                // --- Updated Disposal Logic ---
+                // Disposal Logic
                 if (lowKey == 'e') {
                     char disposedItem = p1.dispose(level, disposedX, disposedY);
                     if (disposedItem == '@') {
@@ -48,7 +48,6 @@ void Game::runGame() {
                         activeBombs.emplace_back(disposedX, disposedY);
                     }
                 }
-                // --- End Updated Disposal Logic ---
                 else {
                     p1.setDirection(key);
                     p2.setDirection(key);
@@ -56,11 +55,8 @@ void Game::runGame() {
             }
         }
 
-        // --- Bomb Ticking Logic ---
-        // Advance all active bombs and remove exploded ones.
+        // Bomb Ticking Logic 
         for (auto it = activeBombs.begin(); it != activeBombs.end(); ) {
-            // Note: If you add Score/Lives (Ex 2), explosion logic must check if players 
-            // were hit inside Bomb::explode or here, and reduce lives/score.
             if (it->advance(level)) {
                 // Bomb exploded, removing it from the list
                 it = activeBombs.erase(it);
@@ -69,7 +65,6 @@ void Game::runGame() {
                 ++it;
             }
         }
-        // --- End Bomb Ticking Logic ---
 
         p1.move(level);
         p2.draw();

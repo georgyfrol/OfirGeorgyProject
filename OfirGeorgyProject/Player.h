@@ -16,7 +16,7 @@ private:
 public:
     void init(int startX, int startY, char sym, Color c, char kU, char kD, char kL, char kR, char kS, char kE);
 
-    // Signature change: returns the character of the item disposed, and sets the disposal location.
+    // returns the character of the item disposed, and sets the disposal location.
     char dispose(Level& level, int& outX, int& outY);
 
     void setDirection(char key);

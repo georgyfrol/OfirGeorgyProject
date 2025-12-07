@@ -25,7 +25,7 @@ private:
     void runGame();
     void displayInstructions();
     void displayMenu();
-    bool pauseGame(); // Will be needed for ESC key
+    bool pauseGame();
 
 public:
     // Main execution loop for the application

@@ -25,7 +25,8 @@ bool Bomb::advance(Level& level) {
     return false;
 }
 
-void Bomb::explode(Level& level) {
+//Wroten by Gemini
+void Bomb::explode(Level& level) { 
     // 1. Clear the bomb character itself from the screen
     level.setCharAt(x, y, ' ');
 
@@ -54,7 +55,6 @@ void Bomb::explode(Level& level) {
                     }
 
                     // Diminishes any other object (Obstacles, Keys, Torches, etc.)
-                    // Player interaction (lives lost) is handled in Game.cpp.
                     if (cell != ' ') {
                         level.setCharAt(current_x, current_y, ' ');
                     }
