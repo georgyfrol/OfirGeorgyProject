@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Bomb.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Game.h" />
@@ -131,6 +132,7 @@
     <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bomb.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="io_utils.cpp" />
     <ClCompile Include="Level.cpp" />

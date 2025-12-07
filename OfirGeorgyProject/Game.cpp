@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 #include "io_utils.h"
 #include <conio.h>  // For _kbhit and _getch
 #include <windows.h> // For gotoxy and Sleep
@@ -10,12 +10,12 @@
 void Game::runGame() {
     gameActive = true;
     // Placeholder for the main game loop from Exercise 1
-    clear_screen(); 
+    clear_screen();
 
     level.init(1);
     level.printLevel();
 
-    p1.init(5,  5, '$', Color::LIGHTGREEN,   'w', 'x', 'a', 'd', 's', 'e');
+    p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
 
     p1.draw();
@@ -31,16 +31,46 @@ void Game::runGame() {
             }
             else {
                 char lowKey = tolower(key);
-                if (lowKey == 'e')
-                    p1.dispose(level);
-                else if (lowKey == 'o')
-                    p2.dispose(level);
+                int disposedX, disposedY; // Variables to capture the item's disposal location
+
+                // --- Updated Disposal Logic ---
+                if (lowKey == 'e') {
+                    char disposedItem = p1.dispose(level, disposedX, disposedY);
+                    if (disposedItem == '@') {
+                        // If Player 1 disposed a Bomb, add it to the active list
+                        activeBombs.emplace_back(disposedX, disposedY);
+                    }
+                }
+                else if (lowKey == 'o') {
+                    char disposedItem = p2.dispose(level, disposedX, disposedY);
+                    if (disposedItem == '@') {
+                        // If Player 2 disposed a Bomb, add it to the active list
+                        activeBombs.emplace_back(disposedX, disposedY);
+                    }
+                }
+                // --- End Updated Disposal Logic ---
                 else {
                     p1.setDirection(key);
                     p2.setDirection(key);
                 }
             }
         }
+
+        // --- Bomb Ticking Logic ---
+        // Advance all active bombs and remove exploded ones.
+        for (auto it = activeBombs.begin(); it != activeBombs.end(); ) {
+            // Note: If you add Score/Lives (Ex 2), explosion logic must check if players 
+            // were hit inside Bomb::explode or here, and reduce lives/score.
+            if (it->advance(level)) {
+                // Bomb exploded, removing it from the list
+                it = activeBombs.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+        // --- End Bomb Ticking Logic ---
+
         p1.move(level);
         p2.draw();
         p2.move(level);
@@ -51,7 +81,7 @@ void Game::runGame() {
         cout << "Player 1 inventory: ";
         setTextColor(Color::WHITE);
         cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        cout << "                                      ";
+        cout << "                                      "; // Padding reduced slightly
         setTextColor(Color::LIGHTMAGENTA);
         cout << "Player 2 inventory: ";
         setTextColor(Color::WHITE);
@@ -59,7 +89,6 @@ void Game::runGame() {
         Sleep(100);
     }
 }
-
 void Game::displayInstructions() {
     clear_screen();
     gotoxy(10, 3);  cout << "--- Instructions and Keys ---";
@@ -120,6 +149,7 @@ void Game::run() {
     clear_screen();
     gotoxy(0, 0);
     cout << "Program finished normally." << endl;
+
 }
 
 // Placeholder for pause logic (will be implemented in a later step)

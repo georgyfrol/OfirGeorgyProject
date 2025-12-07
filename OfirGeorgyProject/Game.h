@@ -3,6 +3,8 @@
 #include "io_utils.h"
 #include "Player.h"
 #include "Level.h"
+#include "Bomb.h"
+#include <vector>
 
 
 using namespace std;
@@ -17,8 +19,9 @@ private:
 
     Player p1, p2;
     Level level;
-
+    std::vector<Bomb> activeBombs;
     // Game Logic
+
     void runGame();
     void displayInstructions();
     void displayMenu();
