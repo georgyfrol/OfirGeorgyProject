@@ -22,8 +22,10 @@ public:
 	// Print the whole board (only called once at the start)
 	void printLevel();
 	
-	// Draw doors with appropriate colors based on their state
+	// Draw doors and items with appropriate colors based on their state
 	void drawDoors();
+	void drawItems();
+
 
 	// Returns the character at a specific position (for collision detection)
 	char getCharAt(int x, int y);

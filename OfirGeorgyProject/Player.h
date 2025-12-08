@@ -27,6 +27,7 @@ public:
         x = newX;
         y = newY;
     }
+    void stop() { dir_x = 0; dir_y = 0; }
 
     void draw();
 

@@ -1,4 +1,5 @@
 ﻿#include "Game.h"
+#include "Player.h"
 #include "io_utils.h"
 #include <conio.h>  // For _kbhit and _getch
 #include <windows.h> // For gotoxy and Sleep
@@ -109,24 +110,17 @@ void Game::runGame() {
             }
         }
 
-        // Check for Door '2' switch state (Level 2 only) - before movement
-        if (currentLevelNum == 2) {
-            // Check if players are standing on switches (S)
-            bool p1OnSwitch = false, p2OnSwitch = false;
-            for (int y = 0; y < HEIGHT; y++) {
-                for (int x = 0; x < WIDTH; x++) {
-                    if (level.getCharAt(x, y) == 'S') {
-                        if (p1.getX() == x && p1.getY() == y) p1OnSwitch = true;
-                        if (p2.getX() == x && p2.getY() == y) p2OnSwitch = true;
-                    }
-                }
+        // Check for Door '2' switch state (Level 2 only)
+            if (level.checkSwitchesState()) {
+                level.setDoor2Open(true);
             }
-            // Door '2' opens when both switches are being held
-            level.setDoor2Open(p1OnSwitch && p2OnSwitch);
-        }
+            else {
+                level.setDoor2Open(false);
+            }
         
-        // Redraw doors with updated colors (before player movement)
+        // Redraw doors and Items with updated colors (before player movement)
         level.drawDoors();
+        level.drawItems();
         
         // Move players and check for level transitions
         char p1Result = p1.move(level);
@@ -155,7 +149,7 @@ void Game::runGame() {
         cout << "Player 1 inventory: ";
         setTextColor(Color::WHITE);
         cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        cout << "                                      "; // Padding reduced slightly
+        cout << "                                      ";
         setTextColor(Color::LIGHTMAGENTA);
         cout << "Player 2 inventory: ";
         setTextColor(Color::WHITE);
@@ -174,7 +168,12 @@ void Game::displayInstructions() {
     gotoxy(10, 10); cout << "STAY     S           K";
     gotoxy(10, 11); cout << "DISPOSE  E           O";
     gotoxy(10, 13); cout << "Elements: Wall (W), Key (K), Door (1-9), Spring (#), Obstacle (*), Torch (!)";
-    gotoxy(10, 15); cout << "Press any key to return to the menu...";
+    gotoxy(10, 15); cout << "-------- Doors logic --------";
+    gotoxy(10, 16); cout << "Door 1: Requires 2 Keys";
+    gotoxy(10, 17); cout << "Door 2: Requires both Switches (/)";
+    gotoxy(10, 18); cout << "Door ?: Solve the Riddle to pass";
+    gotoxy(10, 19); cout << "Door 3: Brings the players to the next map";
+    gotoxy(10, 21); cout << "Press any key to return to the menu...";
     _getch(); // Wait for a key press
 }
 
@@ -230,9 +229,9 @@ void Game::run() {
 bool Game::pauseGame() {
     gotoxy(0, HEIGHT);
     cout << "                                                                               ";
-    gotoxy(3, HEIGHT);
+    gotoxy(11, HEIGHT);
     setTextColor(Color::YELLOW);
-    cout << "Game paused, press ESC again to continue or H to go back to the main menu";
+    cout << "Game paused. ESC: Continue, H: Home Menu, 8: Instructions";
     setTextColor(Color::WHITE);
 
     while (true) {
@@ -245,6 +244,32 @@ bool Game::pauseGame() {
             }
             char lowKey = tolower(key);
             if (lowKey == 'h') return false;
+            if (key == '8') {
+                displayInstructions();
+
+                clear_screen();
+                level.printLevel();
+                p1.draw();
+                p2.draw();
+
+                gotoxy(0, HEIGHT);
+                setTextColor(Color::LIGHTGREEN);
+                cout << "Player 1 inventory: ";
+                setTextColor(Color::WHITE);
+                cout << (p1.getInventory() ? p1.getInventory() : ' ');
+                cout << "                                      ";
+                setTextColor(Color::LIGHTMAGENTA);
+                cout << "Player 2 inventory: ";
+                setTextColor(Color::WHITE);
+                cout << (p2.getInventory() ? p2.getInventory() : ' ');
+
+                gotoxy(0, HEIGHT);
+                cout << "                                                                               ";
+                gotoxy(11, HEIGHT);
+                setTextColor(Color::YELLOW);
+                cout << "Game paused. ESC: Continue, H: Home Menu, 8: Instructions";
+                setTextColor(Color::WHITE);
+            }
         }
         Sleep(100);
     }
@@ -262,7 +287,7 @@ void Game::handleRiddle(Player& p) {
     clear_screen();
     gotoxy(20, 8);  cout << "=== RIDDLE ===";
     gotoxy(20, 10); cout << r->getQuestion();
-    gotoxy(20, 12); cout << "Answer: ";
+    gotoxy(20, 15); cout << "Answer: ";
 
     hideCursor();
 
@@ -282,7 +307,7 @@ void Game::handleRiddle(Player& p) {
         }
     }
 
-    gotoxy(20, 14);
+    gotoxy(20, 17);
     if (r->checkAnswer(input)) {
         setTextColor(Color::GREEN);
         cout << "CORRECT!";
@@ -298,6 +323,7 @@ void Game::handleRiddle(Player& p) {
         setTextColor(Color::RED);
         cout << "WRONG!";
         Sleep(1000);
+        p.stop();
     }
 
     setTextColor(Color::WHITE);
@@ -305,4 +331,5 @@ void Game::handleRiddle(Player& p) {
     clear_screen();
     level.printLevel();
     level.drawDoors();
+    level.drawItems();
 }

@@ -82,6 +82,22 @@ char Player::move(Level& level) { //players' movments with wrap-around
 
     char nextCell = level.getCharAt(next_x, next_y);
 
+    if (nextCell == '/') {
+        // from open switch to closed switch
+        level.setCharAt(next_x, next_y, '\\');
+        }
+    else if (nextCell == '\\') {
+        // from closed switch to open switch
+        level.setCharAt(next_x, next_y, '/');
+    }
+    if (nextCell == '/' || nextCell == '\\') {
+        erase(level);
+        x = next_x;
+        y = next_y;
+        draw();
+        return ' ';
+    }
+
     if (nextCell == '?') return '?';
     
 

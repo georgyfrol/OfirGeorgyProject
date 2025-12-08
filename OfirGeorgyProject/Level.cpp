@@ -94,6 +94,41 @@ void Level::drawDoors() {
     setTextColor(Color::WHITE);  // Reset to white
 }
 
+void Level::drawItems() {
+    // Scan the map for items and draw them with appropriate colors
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            char c = map[y][x];
+            if (c == '\\') {
+                setTextColor(Color::YELLOW);
+                gotoxy(x, y);
+                cout << '\\';
+            }
+            else if (c == '/') {
+                setTextColor(Color::YELLOW);
+                gotoxy(x, y);
+                cout << '/';
+            }
+            else if (c == '?') {
+                setTextColor(Color::CYAN);
+                gotoxy(x, y);
+                cout << '?';
+            }
+            else if (c == 'K') {
+                setTextColor(Color::YELLOW);
+                gotoxy(x, y);
+                cout << 'K';
+            }
+            else if (c == '@') {
+                setTextColor(Color::LIGHTRED);
+                gotoxy(x, y);
+                cout << '@';
+            }
+        }
+    }
+    setTextColor(Color::WHITE);  // Reset to white
+}
+
 char Level::getCharAt(int x, int y) {
     if (y < 0 || y >= HEIGHT || x < 0 || x >= WIDTH) {
         return 'W';
@@ -121,10 +156,15 @@ bool Level::tryUnlockDoor1() {
 }
 
 bool Level::checkSwitchesState() const {
-    // Scan map for switches (S) and check if players are on them
-    // This will be called from Game class with player positions
-    // For now, return false - will be implemented in Game class
-    return false;
+    int openSwitches = 0;
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            if (map[y][x] == '/') {
+                openSwitches++;
+            }
+        }
+    }
+    return (openSwitches >= 2);
 }
 void Level::addRiddle(int x, int y, string q, string a) {
     riddles.push_back(Riddle(x, y, q, a));
