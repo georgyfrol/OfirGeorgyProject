@@ -3,26 +3,39 @@
 #include "LevelData.h"
 #include <iostream>
 #include <cctype>
+#include <vector>
 
 using namespace std;
 
 void Level::init(int levelNum) {
     LevelData::load(levelNum, map);
+
+    riddles.clear();
+    vector<RiddleDataRaw> rawRiddles = LevelData::getRiddles(levelNum);
+    int currentRiddleIndex = 0;
+
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            if (map[y][x] == '?') {
+                   if (currentRiddleIndex < rawRiddles.size()) {
+                    RiddleDataRaw data = rawRiddles[currentRiddleIndex];
+                    addRiddle(x, y, data.question, data.answer);
+                    currentRiddleIndex++;
+                }
+            }
+        }
+    }
     
     // Initialize door states based on level
     if (levelNum == 1) {
         door1KeysRequired = 2;  // Door 1 requires 2 keys
         door1Open = false;
         door2Open = true;  // Door 2 doesn't exist in level 1
-        setCharAt(20, 5, '?');
-        addRiddle(20, 5, "What has keys but can't open locks?", "piano");
     }
     else if (levelNum == 2) {
         door1KeysRequired = 0;  // Door 1 doesn't exist in level 2
         door1Open = true;
         door2Open = false;  // Door 2 starts closed, requires switches
-        setCharAt(20, 5, '?');
-        addRiddle(20, 5, "What has keys but can't open locks?", "piano");
     }
     else {
         door1KeysRequired = 0;

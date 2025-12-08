@@ -1,6 +1,11 @@
 ﻿#pragma once
 #include "Level.h"
 
+struct RiddleDataRaw {
+    string question;
+    string answer;
+};
+
 class LevelData {
 public:
     static void load(int levelNum, char map[HEIGHT][WIDTH + 1]) {
@@ -24,7 +29,7 @@ public:
             layout[1]  = "W  @  W                                                                          W";
             layout[2]  = "W  W  W                                                                          W";
             layout[3]  = "W  K  W                                                                          W";
-            layout[4]  = "W  WWWW                                                                         W";
+            layout[4]  = "W  WWWW                 ?                                                        W";
             layout[5]  = "W  W  W                                                                          W";
             layout[6]  = "W                                                                                W";
             layout[7]  = "W        WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW";
@@ -121,5 +126,17 @@ public:
                 }
             }
         }
+    }
+    static vector<RiddleDataRaw> getRiddles(int levelNum) {
+        vector<RiddleDataRaw> list;
+
+        if (levelNum == 1) {
+            list.push_back({ "What has keys but can't open locks?", "piano" });
+        }
+        else if (levelNum == 2) {
+            list.push_back({ "I speak without a mouth. What am I?", "echo" });
+        }
+
+        return list;
     }
 };
