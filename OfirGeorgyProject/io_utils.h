@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
+
+// All the functions except setColorMode are from lab session
+
 using namespace std;
 
 void gotoxy(int x, int y);

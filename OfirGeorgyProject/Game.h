@@ -9,7 +9,7 @@
 
 using namespace std;
 
-// --- Game Class (Handles Menu and Main Loop) ---
+// Game Class (Handles Menu and Main Loop)
 
 class Game {
 private:

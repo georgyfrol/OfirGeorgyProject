@@ -10,6 +10,7 @@ using namespace std;
 void Level::init(int levelNum) {
     LevelData::load(levelNum, map);
 
+    //Riddle initialization
     riddles.clear();
     vector<Riddle> pendingRiddles = LevelData::getRiddles(levelNum);
     int currentRiddleIndex = 0;

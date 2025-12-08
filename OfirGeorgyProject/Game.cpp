@@ -7,8 +7,6 @@
 #include <cstdlib>  // For system("cls")
 
 
-// --- Game Logic Implementations ---
-
 void Game::loadNextLevel() {
     // Increment to next level number
     currentLevelNum++;
@@ -225,7 +223,6 @@ void Game::run() {
 
 }
 
-// Placeholder for pause logic (will be implemented in a later step)
 bool Game::pauseGame() {
     gotoxy(0, HEIGHT);
     cout << "                                                                               ";

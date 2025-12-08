@@ -46,42 +46,35 @@ public:
             break;
 
         case 2:
-            // Level 2: Cooperative Switch Puzzle
-            // Door '2' blocks path to Door '3'
-            // Switch 1 (S): Accessible only to Player 1 (left side, isolated area)
-            // Switch 2 (S): Accessible only to Player 2 (right side, isolated area)
-            // Both switches must be held simultaneously to open Door '2'
-            // Key (K) placed in center - requires coordination to reach
-            // Door '3' at exit (bottom right)
             layout[0]  = "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW";
             layout[1]  = "W  \\  W                                                                  W  \\  W";  
             layout[2]  = "W  W  W                                                                  W  W  W";
             layout[3]  = "W  W  W                                                                  W  W  W";
-            layout[4]  = "W  W  W                                                                  W  W  W";
+            layout[4]  = "W  W  W                                     @                            W  W  W";
             layout[5]  = "W  W  W                                                                  W  W  W";
             layout[6]  = "W  W  W                                                                  W  W  W";
             layout[7]  = "W  W  W                                                                  W  W  W";
             layout[8]  = "W  W  W                                                                  W  W  W";
-            layout[9]  = "W  W  W                                                                  W  W  W";
-            layout[10] = "W  W  W                                                                  W  W  W";
-            layout[11] = "W  W  W                                                                  W  W  W";
-            layout[12] = "W  W  W                                                                  W  W  W";
-            layout[13] = "W  W  W                                                                  W  W  W";
+            layout[9]  = "W  W  W                              2222222                             W  W  W";
+            layout[10] = "W  W  W                 @            2     2                             W  W  W";
+            layout[11] = "W  W  W                              2  3  2             @               W  W  W";
+            layout[12] = "W  W  W                              2     2                             W  W  W";
+            layout[13] = "W  W  W                              2222222                             W  W  W";
             layout[14] = "W  W  W                                                                  W  W  W";
             layout[15] = "W  W  W                                                                  W  W  W";
             layout[16] = "W  W  W                                                                  W  W  W";
-            layout[17] = "W  W  W                                                   2              W  W  W";
+            layout[17] = "W  W  W                                                                  W  W  W";
             layout[18] = "W  W  W                                                                  W  W  W";
             layout[19] = "W  W  W                                                                  W  W  W";
             layout[20] = "W  W  W                                                                  W  W  W";
             layout[21] = "W  W  W                                                                  W  W  W";
-            layout[22] = "W  W  W                              K                   2               W  W  W";
-            layout[23] = "W  W  W                                                                    3   W";
+            layout[22] = "W  W  W                              @                                   W  W  W";
+            layout[23] = "W  W  2                                                                  2  W  W";
             layout[24] = "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW";
             break;
 
         case 3:
-            // Level 3: End Screen - all boundaries must be 'W'
+            // Level 3: End Screen 
             layout[0]  = "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW";
             layout[1]  = "W                                                                              W";
             layout[2]  = "W                                                                              W";
@@ -128,10 +121,6 @@ public:
             list.push_back({ "Alive without breath,\n                    As cold as death;\n                    Never thirsty, ever drinking,\n                    All in mail never clinking.", "fish" });
             list.push_back({ "What has keys but can't open locks?", "piano" });
             list.push_back({ "I speak without a mouth. What am I?", "echo" });
-        }
-        else if (levelNum == 2) {
-            //list.push_back({ "Alive without breath, As cold as death; Never thirsty, ever drinking, All in mail never clinking.", "fish" });
-            //list.push_back({ "Alive without breath, As cold as death; Never thirsty, ever drinking, All in mail never clinking.", "fish" });
         }
 
         return list;

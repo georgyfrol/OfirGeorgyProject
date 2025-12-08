@@ -3,7 +3,7 @@
 #include "Level.h"
 #include "Color.h"
 #include <iostream>
-#include <cctype>   // for tolower function
+#include <cctype>   // For tolower function
 
 using namespace std;
 
@@ -17,7 +17,7 @@ void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, c
     inventory = 0;
 
     
-    //using tolower function to always stay on lower case keys
+    //Using tolower function to always stay on lower case keys
     keyUp = tolower(kU);
     keyDown = tolower(kD);
     keyLeft = tolower(kL);
@@ -83,11 +83,11 @@ char Player::move(Level& level) { //players' movments with wrap-around
     char nextCell = level.getCharAt(next_x, next_y);
 
     if (nextCell == '/') {
-        // from open switch to closed switch
+        // From open switch to closed switch
         level.setCharAt(next_x, next_y, '\\');
         }
     else if (nextCell == '\\') {
-        // from closed switch to open switch
+        // From closed switch to open switch
         level.setCharAt(next_x, next_y, '/');
     }
     if (nextCell == '/' || nextCell == '\\') {
@@ -101,7 +101,7 @@ char Player::move(Level& level) { //players' movments with wrap-around
     if (nextCell == '?') return '?';
     
 
-    // Handle Door '3' (Level Exit Gate) - always passable
+    // Handle Door '3' (Level Exit Gate)
     if (nextCell == '3') {
         erase(level);
         x = next_x;
@@ -211,7 +211,6 @@ char Player::dispose(Level& level, int& outX, int& outY) {
                 return '@'; // Signal that a bomb was disposed
             }
 
-            // For all other items (Key, Torch), just place them and return 0 (not a bomb)
             level.setCharAt(x, y, inventory);
             inventory = 0;
             draw();

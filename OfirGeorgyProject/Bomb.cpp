@@ -25,9 +25,9 @@ bool Bomb::advance(Level& level) {
     return false;
 }
 
-//Wroten by Gemini
+//Gemini function: We wrote gemini to help us with the explsion
 void Bomb::explode(Level& level) { 
-    // 1. Clear the bomb character itself from the screen
+    // Clear the bomb character itself from the screen
     level.setCharAt(x, y, ' ');
 
     // Explosion radius is 3, including diagonals. Distance squared <= 9.
@@ -51,7 +51,7 @@ void Bomb::explode(Level& level) {
                     // Adjacent means dx and dy are 0 or 1. If both are > 1, it's not adjacent.
                     // This implementation assumes: a Wall is shielded if the distance > 1.
                     if (cell == 'W' && (abs(dx) > 1 || abs(dy) > 1)) {
-                        continue; // Wall is shielded, skip destruction
+                        continue; // Skip destruction
                     }
 
                     // Diminishes any other object (Obstacles, Keys, Torches, etc.)
