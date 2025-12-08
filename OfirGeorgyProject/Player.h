@@ -31,6 +31,7 @@ public:
     int getY() const { return y; }
 
     char getInventory() const { return inventory; }
+    void setInventory(char item) { inventory = item; }
 
 
 };

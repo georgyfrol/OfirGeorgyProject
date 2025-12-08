@@ -8,6 +8,23 @@ using namespace std;
 
 void Level::init(int levelNum) {
     LevelData::load(levelNum, map);
+    
+    // Initialize door states based on level
+    if (levelNum == 1) {
+        door1KeysRequired = 2;  // Door 1 requires 2 keys
+        door1Open = false;
+        door2Open = true;  // Door 2 doesn't exist in level 1
+    }
+    else if (levelNum == 2) {
+        door1KeysRequired = 0;  // Door 1 doesn't exist in level 2
+        door1Open = true;
+        door2Open = false;  // Door 2 starts closed, requires switches
+    }
+    else {
+        door1KeysRequired = 0;
+        door1Open = true;
+        door2Open = true;
+    }
 }
 
 void Level::printLevel() {
@@ -19,6 +36,45 @@ void Level::printLevel() {
             cout << map[i][j];
         }
     }
+    
+    // Draw doors with colors after printing the level
+    drawDoors();
+}
+
+void Level::drawDoors() {
+    // Scan the map for doors and draw them with appropriate colors
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            char c = map[y][x];
+            if (c == '1') {
+                // Door '1' - RED if locked, GREEN if open
+                if (door1Open) {
+                    setTextColor(Color::GREEN);
+                } else {
+                    setTextColor(Color::RED);
+                }
+                gotoxy(x, y);
+                cout << '1';
+            }
+            else if (c == '2') {
+                // Door '2' - RED if locked, GREEN if open
+                if (door2Open) {
+                    setTextColor(Color::GREEN);
+                } else {
+                    setTextColor(Color::RED);
+                }
+                gotoxy(x, y);
+                cout << '2';
+            }
+            else if (c == '3') {
+                // Door '3' - Always GREEN (always open/available)
+                setTextColor(Color::GREEN);
+                gotoxy(x, y);
+                cout << '3';
+            }
+        }
+    }
+    setTextColor(Color::WHITE);  // Reset to white
 }
 
 char Level::getCharAt(int x, int y) {
@@ -34,4 +90,22 @@ void Level::setCharAt(int x, int y, char c) {
         gotoxy(x, y);
         cout << c;
     }
+}
+
+bool Level::tryUnlockDoor1() {
+    if (door1KeysRequired > 0) {
+        door1KeysRequired--;
+        if (door1KeysRequired == 0) {
+            door1Open = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Level::checkSwitchesState() const {
+    // Scan map for switches (S) and check if players are on them
+    // This will be called from Game class with player positions
+    // For now, return false - will be implemented in Game class
+    return false;
 }

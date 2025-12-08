@@ -7,12 +7,54 @@
 
 // --- Game Logic Implementations ---
 
+void Game::loadNextLevel() {
+    // Increment to next level number
+    currentLevelNum++;
+    
+    // Check if we've reached the end screen (Level 3)
+    if (currentLevelNum == 3) {
+        // Load Level 3 (End Screen)
+        clear_screen();
+        level.init(3);
+        level.printLevel();
+        
+        // End game sequence
+        Sleep(2000);
+        gameActive = false;
+        return;
+    }
+    
+    // Load next challenge level (Level 2)
+    clear_screen();
+    activeBombs.clear();  // Clear bombs from previous level
+    
+    // Preserve player inventory before reset
+    char p1Inventory = p1.getInventory();
+    char p2Inventory = p2.getInventory();
+    
+    // Initialize the new level
+    level.init(currentLevelNum);
+    level.printLevel();
+    
+    // Reset both players to starting positions on the new map
+    p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
+    p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
+    
+    // Restore inventory after reset
+    p1.setInventory(p1Inventory);
+    p2.setInventory(p2Inventory);
+    
+    p1.draw();
+    p2.draw();
+}
+
 void Game::runGame() {
     gameActive = true;
-    // Placeholder for the main game loop from Exercise 1
     clear_screen();
-
-    level.init(1);
+    
+    // Initialize starting level
+    currentLevelNum = 1;
+    level.init(currentLevelNum);
     level.printLevel();
 
     p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
@@ -66,10 +108,36 @@ void Game::runGame() {
             }
         }
 
-        p1.move(level);
+        // Check for Door '2' switch state (Level 2 only) - before movement
+        if (currentLevelNum == 2) {
+            // Check if players are standing on switches (S)
+            bool p1OnSwitch = false, p2OnSwitch = false;
+            for (int y = 0; y < HEIGHT; y++) {
+                for (int x = 0; x < WIDTH; x++) {
+                    if (level.getCharAt(x, y) == 'S') {
+                        if (p1.getX() == x && p1.getY() == y) p1OnSwitch = true;
+                        if (p2.getX() == x && p2.getY() == y) p2OnSwitch = true;
+                    }
+                }
+            }
+            // Door '2' opens when both switches are being held
+            level.setDoor2Open(p1OnSwitch && p2OnSwitch);
+        }
+        
+        // Redraw doors with updated colors (before player movement)
+        level.drawDoors();
+        
+        // Move players and check for level transitions
+        char p1Result = p1.move(level);
         p2.draw();
-        p2.move(level);
+        char p2Result = p2.move(level);
         p1.draw();
+        
+        // Handle Door '3' level transitions - immediate transition when any player touches it
+        if (p1Result == '3' || p2Result == '3') {
+            // Immediately transition to next level
+            loadNextLevel();
+        }
 
         gotoxy(0, HEIGHT);
         setTextColor(Color::LIGHTGREEN);

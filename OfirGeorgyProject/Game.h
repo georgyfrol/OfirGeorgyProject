@@ -26,6 +26,7 @@ private:
     void displayInstructions();
     void displayMenu();
     bool pauseGame();
+    void loadNextLevel();
 
 public:
     // Main execution loop for the application

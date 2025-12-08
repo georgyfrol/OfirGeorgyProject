@@ -82,6 +82,67 @@ char Player::move(Level& level) { //players' movments with wrap-around
 
     char nextCell = level.getCharAt(next_x, next_y);
 
+    // Handle Door '3' (Level Exit Gate) - always passable
+    if (nextCell == '3') {
+        erase(level);
+        x = next_x;
+        y = next_y;
+        draw();
+        return '3';  // Signal level transition
+    }
+
+    // Handle Door '1' (Key-Locked)
+    if (nextCell == '1') {
+        if (level.isDoor1Open()) {
+            // Door is open, allow passage
+            erase(level);
+            x = next_x;
+            y = next_y;
+            draw();
+            return '1';
+        }
+        else {
+            // Door is locked, check if player has a key
+            if (inventory == 'K') {
+                // Consume key and try to unlock door
+                inventory = 0;
+                if (level.tryUnlockDoor1()) {
+                    // Door is now fully unlocked, remove it from map
+                    level.setCharAt(next_x, next_y, ' ');
+                }
+                // Player stays near door (doesn't move)
+                dir_x = 0;
+                dir_y = 0;
+                return '1';
+            }
+            else {
+                // No key, block movement
+                dir_x = 0;
+                dir_y = 0;
+                return ' ';
+            }
+        }
+    }
+
+    // Handle Door '2' (Switch-Locked)
+    if (nextCell == '2') {
+        if (level.isDoor2Open()) {
+            // Door is open, allow passage
+            erase(level);
+            x = next_x;
+            y = next_y;
+            draw();
+            return '2';
+        }
+        else {
+            // Door is locked, block movement
+            dir_x = 0;
+            dir_y = 0;
+            return ' ';
+        }
+    }
+
+    // Handle other doors (4-9) - original logic
     if (isdigit(nextCell) && nextCell != '0') {
         if (inventory == 'K') {
             inventory = 0;
