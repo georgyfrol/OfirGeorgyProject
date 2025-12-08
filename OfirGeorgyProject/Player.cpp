@@ -82,6 +82,9 @@ char Player::move(Level& level) { //players' movments with wrap-around
 
     char nextCell = level.getCharAt(next_x, next_y);
 
+    if (nextCell == '?') return '?';
+    
+
     // Handle Door '3' (Level Exit Gate) - always passable
     if (nextCell == '3') {
         erase(level);

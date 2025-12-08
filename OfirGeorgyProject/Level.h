@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <vector>
+#include "Riddle.h"
 
 const int HEIGHT = 25;
 const int WIDTH = 80;
@@ -11,6 +13,7 @@ class Level {
 	int door1KeysRequired;  // Number of keys still needed for Door 1 (starts at 2)
 	bool door1Open;         // Whether Door 1 is open
 	bool door2Open;         // Whether Door 2 is open (controlled by switches)
+	vector<Riddle> riddles;
 
 public:
 	// initialize the hardcoded map
@@ -35,5 +38,7 @@ public:
 	
 	// Check if switches are ON (for Door 2)
 	bool checkSwitchesState() const;  // Returns true if both switches (S) are being held
-
+	void addRiddle(int x, int y, string q, string a);
+	const Riddle* getRiddle(int x, int y);
+	void removeRiddle(int x, int y);
 };

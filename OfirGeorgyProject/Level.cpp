@@ -14,11 +14,15 @@ void Level::init(int levelNum) {
         door1KeysRequired = 2;  // Door 1 requires 2 keys
         door1Open = false;
         door2Open = true;  // Door 2 doesn't exist in level 1
+        setCharAt(20, 5, '?');
+        addRiddle(20, 5, "What has keys but can't open locks?", "piano");
     }
     else if (levelNum == 2) {
         door1KeysRequired = 0;  // Door 1 doesn't exist in level 2
         door1Open = true;
         door2Open = false;  // Door 2 starts closed, requires switches
+        setCharAt(20, 5, '?');
+        addRiddle(20, 5, "What has keys but can't open locks?", "piano");
     }
     else {
         door1KeysRequired = 0;
@@ -108,4 +112,23 @@ bool Level::checkSwitchesState() const {
     // This will be called from Game class with player positions
     // For now, return false - will be implemented in Game class
     return false;
+}
+void Level::addRiddle(int x, int y, string q, string a) {
+    riddles.push_back(Riddle(x, y, q, a));
+}
+
+const Riddle* Level::getRiddle(int x, int y) {
+    for (const auto& r : riddles) {
+        if (r.getX() == x && r.getY() == y) return &r;
+    }
+    return nullptr;
+}
+
+void Level::removeRiddle(int x, int y) {
+    for (auto it = riddles.begin(); it != riddles.end(); ++it) {
+        if (it->getX() == x && it->getY() == y) {
+            riddles.erase(it);
+            return;
+        }
+    }
 }

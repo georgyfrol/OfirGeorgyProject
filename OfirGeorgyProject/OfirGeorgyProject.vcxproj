@@ -130,6 +130,7 @@
     <ClInclude Include="io_utils.h" />
     <ClInclude Include="LevelData.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Riddle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bomb.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Riddle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

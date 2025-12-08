@@ -27,6 +27,7 @@ private:
     void displayMenu();
     bool pauseGame();
     void loadNextLevel();
+    void handleRiddle(Player& p);
 
 public:
     // Main execution loop for the application

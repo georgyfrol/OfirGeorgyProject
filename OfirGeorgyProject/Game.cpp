@@ -2,6 +2,7 @@
 #include "io_utils.h"
 #include <conio.h>  // For _kbhit and _getch
 #include <windows.h> // For gotoxy and Sleep
+#include <string> 
 #include <cstdlib>  // For system("cls")
 
 
@@ -132,6 +133,16 @@ void Game::runGame() {
         p2.draw();
         char p2Result = p2.move(level);
         p1.draw();
+
+        if (p1Result == '?') {
+            handleRiddle(p1);
+            p1.draw(); p2.draw();
+        }
+
+        if (p2Result == '?') {
+            handleRiddle(p2);
+            p1.draw(); p2.draw();
+        }
         
         // Handle Door '3' level transitions - immediate transition when any player touches it
         if (p1Result == '3' || p2Result == '3') {
@@ -237,4 +248,61 @@ bool Game::pauseGame() {
         }
         Sleep(100);
     }
+}
+void Game::handleRiddle(Player& p) {
+    int targetX = p.getX() + p.getDirX();
+    int targetY = p.getY() + p.getDirY();
+
+    if (targetX < 0) targetX = WIDTH - 1; else if (targetX >= WIDTH) targetX = 0;
+    if (targetY < 0) targetY = HEIGHT - 1; else if (targetY >= HEIGHT) targetY = 0;
+
+    const Riddle* r = level.getRiddle(targetX, targetY);
+    if (!r) return;
+
+    clear_screen();
+    gotoxy(20, 8);  cout << "=== RIDDLE ===";
+    gotoxy(20, 10); cout << r->getQuestion();
+    gotoxy(20, 12); cout << "Answer: ";
+
+    hideCursor();
+
+    string input = "";
+    while (true) {
+        char c = _getch();
+        if (c == 13) break; // Enter
+        if (c == 8) { // Backspace
+            if (!input.empty()) {
+                input.pop_back();
+                cout << "\b \b";
+            }
+        }
+        else if (c >= 32 && c <= 126) {
+            input += c;
+            cout << c;
+        }
+    }
+
+    gotoxy(20, 14);
+    if (r->checkAnswer(input)) {
+        setTextColor(Color::GREEN);
+        cout << "CORRECT!";
+        Sleep(1000);
+
+        level.setCharAt(targetX, targetY, ' ');
+        level.removeRiddle(targetX, targetY);
+
+        p.erase(level);
+        p.setPosition(targetX, targetY);
+    }
+    else {
+        setTextColor(Color::RED);
+        cout << "WRONG!";
+        Sleep(1000);
+    }
+
+    setTextColor(Color::WHITE);
+
+    clear_screen();
+    level.printLevel();
+    level.drawDoors();
 }

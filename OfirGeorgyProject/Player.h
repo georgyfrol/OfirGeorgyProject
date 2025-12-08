@@ -11,9 +11,9 @@ private:
     char keyUp, keyDown, keyLeft, keyRight, keyStay, keyDispose;
     Color color;
     char inventory = 0;
-    void erase(Level& level);
 
 public:
+    void erase(Level& level);
     void init(int startX, int startY, char sym, Color c, char kU, char kD, char kL, char kR, char kS, char kE);
 
     // returns the character of the item disposed, and sets the disposal location.
@@ -23,12 +23,17 @@ public:
 
     char move(Level& level);
 
-    void draw();
+    void setPosition(int newX, int newY) {
+        x = newX;
+        y = newY;
+    }
 
-    void dispose(Level& level);
+    void draw();
 
     int getX() const { return x; }
     int getY() const { return y; }
+    int getDirX() const { return dir_x; }
+    int getDirY() const { return dir_y; }
 
     char getInventory() const { return inventory; }
     void setInventory(char item) { inventory = item; }
