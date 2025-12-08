@@ -2,9 +2,12 @@
 #include <iostream>
 #include <cctype>
 
-Riddle::Riddle(int _x, int _y, string _q, string _a)
-    : x(_x), y(_y), question(_q), answer(_a)
-{
+Riddle::Riddle(string _q, string _a)
+    : x(-1), y(-1), question(_q), answer(_a){}
+
+void Riddle::setPosition(int _x, int _y) {
+    x = _x;
+    y = _y;
 }
 
 bool Riddle::checkAnswer(const string& playerAnswer) const {

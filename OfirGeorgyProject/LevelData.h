@@ -1,10 +1,7 @@
 ﻿#pragma once
 #include "Level.h"
+#include "Riddle.h"
 
-struct RiddleDataRaw {
-    string question;
-    string answer;
-};
 
 class LevelData {
 public:
@@ -123,8 +120,8 @@ public:
             }
         }
     }
-    static vector<RiddleDataRaw> getRiddles(int levelNum) {
-        vector<RiddleDataRaw> list;
+    static vector<Riddle> getRiddles(int levelNum) {
+        vector<Riddle> list;
 
         if (levelNum == 1) {
             list.push_back({ "What has roots as nobody sees,\n                    Is taller than trees,\n                    Up, up it goes,\n                    And yet never grows?", "mountain" });

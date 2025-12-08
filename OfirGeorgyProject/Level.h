@@ -40,7 +40,7 @@ public:
 	
 	// Check if switches are ON (for Door 2)
 	bool checkSwitchesState() const;  // Returns true if both switches (S) are being held
-	void addRiddle(int x, int y, string q, string a);
+	void addRiddle(Riddle r);
 	const Riddle* getRiddle(int x, int y);
 	void removeRiddle(int x, int y);
 };

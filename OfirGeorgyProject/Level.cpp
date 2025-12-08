@@ -11,15 +11,16 @@ void Level::init(int levelNum) {
     LevelData::load(levelNum, map);
 
     riddles.clear();
-    vector<RiddleDataRaw> rawRiddles = LevelData::getRiddles(levelNum);
+    vector<Riddle> pendingRiddles = LevelData::getRiddles(levelNum);
     int currentRiddleIndex = 0;
 
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             if (map[y][x] == '?') {
-                   if (currentRiddleIndex < rawRiddles.size()) {
-                    RiddleDataRaw data = rawRiddles[currentRiddleIndex];
-                    addRiddle(x, y, data.question, data.answer);
+                   if (currentRiddleIndex < pendingRiddles.size()) {
+                    Riddle r = pendingRiddles[currentRiddleIndex];
+                    r.setPosition(x, y);
+                    addRiddle(r);
                     currentRiddleIndex++;
                 }
             }
@@ -166,8 +167,8 @@ bool Level::checkSwitchesState() const {
     }
     return (openSwitches >= 2);
 }
-void Level::addRiddle(int x, int y, string q, string a) {
-    riddles.push_back(Riddle(x, y, q, a));
+void Level::addRiddle(Riddle r) {
+    riddles.push_back(r);
 }
 
 const Riddle* Level::getRiddle(int x, int y) {
