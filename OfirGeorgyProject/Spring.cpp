@@ -9,18 +9,21 @@ void Spring::updateCompression(Player& player, Level& level) {
     
     // STEP 5: Check if player is on spring
     if (!contains(playerX, playerY)) {
-        // Player not on spring - do nothing, don't modify map
-        lastPlayerPosX = playerX;
-        lastPlayerPosY = playerY;
+        // Player not on spring - clear activePlayer if this was the active player
+        if (activePlayer == &player) {
+            activePlayer = nullptr;
+            lastPlayerPosX = -1;
+            lastPlayerPosY = -1;
+        }
         return;
     }
     
     // Player is on spring - continue
     
-    // Check release conditions FIRST (before compression)
-    // Release when: player is on spring AND compressedLength > 0 AND one of:
+    // Check release conditions FIRST (before any direction-based early returns)
+    // Release when: compressedLength > 0 AND player is on spring AND one of:
     // 1) Player reaches the wall (adjacent in wallDir direction)
-    // 2) Player presses STAY
+    // 2) Player presses STAY (direction is 0,0)
     // 3) Player attempts to change direction (current dir != wallDir)
     if (compressedLength > 0) {
         int playerDirX = player.getDirX();
@@ -47,11 +50,32 @@ void Spring::updateCompression(Player& player, Level& level) {
         
         if (shouldRelease) {
             release(player, level);
-            lastPlayerPosX = playerX;
-            lastPlayerPosY = playerY;
             return;
         }
     }
+    
+    // If activePlayer is set and it's not this player, ignore this player completely
+    if (activePlayer != nullptr && activePlayer != &player) {
+        return;
+    }
+    
+    // If no active player, check if this player should become active
+    if (activePlayer == nullptr) {
+        int playerDirX = player.getDirX();
+        int playerDirY = player.getDirY();
+        
+        // Set activePlayer only if player is moving toward the wall
+        if (playerDirX == wallDirX && playerDirY == wallDirY) {
+            activePlayer = &player;
+            lastPlayerPosX = playerX;
+            lastPlayerPosY = playerY;
+        } else {
+            // Player is on spring but not moving toward wall - don't activate
+            return;
+        }
+    }
+    
+    // Now we know activePlayer == &player, continue with compression logic
     
     // STEP 6: Check movement direction
     int playerDirX = player.getDirX();
@@ -66,25 +90,49 @@ void Spring::updateCompression(Player& player, Level& level) {
     }
     
     // STEP 7: Compress visually
-    // Check if player moved one cell (step-based compression)
-    bool playerMoved = (playerX != lastPlayerPosX || playerY != lastPlayerPosY);
-    
-    if (playerMoved && compressedLength < length) {
-        
-        int cellIndex;
-
-        // Always remove the cell FURTHEST from the wall
-        if (wallDirX == 1 || wallDirY == 1) {
-            // Wall is on right or bottom → remove from start
-            cellIndex = compressedLength;
-        } else {
-            // Wall is on left or top → remove from end
-            cellIndex = length - 1 - compressedLength;
+    // compressedLength = number of spring cells ('#') the player has TOUCHED (been on)
+    // Find which spring cell the player is currently on
+    int currentCellIndex = -1;
+    for (size_t i = 0; i < cells.size(); i++) {
+        if (cells[i].x == playerX && cells[i].y == playerY) {
+            currentCellIndex = static_cast<int>(i);
+            break;
         }
-
-        level.setCharAt(cells[cellIndex].x, cells[cellIndex].y, ' ');
-        compressedLength++;
-        isCompressed = true;
+    }
+    
+    if (currentCellIndex >= 0) {
+        // Calculate compressedLength based on how many cells player has TOUCHED
+        int newCompressedLength = 0;
+        
+        if (wallDirX == 1 || wallDirY == 1) {
+            // Wall is on right or bottom → cells[0] is closest to wall
+            // compressedLength = number of cells touched from wall side to current position
+            newCompressedLength = currentCellIndex + 1;
+        } else {
+            // Wall is on left or top → cells[length-1] is closest to wall
+            // compressedLength = number of cells touched from wall side to current position
+            newCompressedLength = length - currentCellIndex;
+        }
+        
+        // Update compressedLength only if player moved forward (toward wall)
+        if (newCompressedLength > compressedLength) {
+            compressedLength = newCompressedLength;
+            isCompressed = true;
+            
+            // Hide exactly one cell (the one player just passed) starting from wall side
+            int cellIndexToHide;
+            if (wallDirX == 1 || wallDirY == 1) {
+                // Wall on right/bottom → hide from start
+                cellIndexToHide = compressedLength - 1;
+            } else {
+                // Wall on left/top → hide from end
+                cellIndexToHide = length - compressedLength;
+            }
+            
+            if (cellIndexToHide >= 0 && cellIndexToHide < length) {
+                level.setCharAt(cells[cellIndexToHide].x, cells[cellIndexToHide].y, ' ');
+            }
+        }
     }
     
     // Update last player position for next cycle
@@ -94,8 +142,9 @@ void Spring::updateCompression(Player& player, Level& level) {
 
 // Release spring: restore cells, launch player, reset compression
 void Spring::release(Player& player, Level& level) {
-    // Restore all spring cells (#) visually in ONE game cycle
-    for (const auto& cell : cells) {
+    // Restore ALL spring cells unconditionally from Spring::cells
+    // Do NOT check map state - cells vector is the source of truth
+    for (const SpringCell& cell : cells) {
         level.setCharAt(cell.x, cell.y, '#');
     }
     
@@ -103,10 +152,10 @@ void Spring::release(Player& player, Level& level) {
     int launchDirX = -wallDirX;
     int launchDirY = -wallDirY;
     
-    // Speed = compressedLength
+    // Speed = compressedLength (N blocks per cycle)
     int speed = compressedLength;
     
-    // Duration = compressedLength * compressedLength
+    // Duration = compressedLength * compressedLength (N^2 game cycles)
     int duration = compressedLength * compressedLength;
     
     // Call player.applySpringEffect(...)
@@ -115,5 +164,10 @@ void Spring::release(Player& player, Level& level) {
     // Reset compressedLength and isCompressed
     compressedLength = 0;
     isCompressed = false;
+    
+    // Reset activePlayer and last position
+    activePlayer = nullptr;
+    lastPlayerPosX = -1;
+    lastPlayerPosY = -1;
 }
 

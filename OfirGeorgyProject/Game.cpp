@@ -121,9 +121,9 @@ void Game::runGame() {
         level.drawItems();
         
         // Move players and check for level transitions
-        char p1Result = p1.move(level);
+        char p1Result = p1.move(level, &p2);
         p2.draw();
-        char p2Result = p2.move(level);
+        char p2Result = p2.move(level, &p1);
         p1.draw();
 
         // Update spring compression for each spring and each player

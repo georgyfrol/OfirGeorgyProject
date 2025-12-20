@@ -32,7 +32,7 @@ public:
 
     void setDirection(char key);
 
-    char move(Level& level);
+    char move(Level& level, Player* otherPlayer = nullptr);
 
     void setPosition(int newX, int newY) {
         x = newX;

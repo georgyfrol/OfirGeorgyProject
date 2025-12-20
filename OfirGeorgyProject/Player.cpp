@@ -15,6 +15,12 @@ void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, c
     dir_x = 0;
     dir_y = 0;
     inventory = 0;
+    speed = 1;
+    remainingSpringCycles = 0;
+    springDirX = 0;
+    springDirY = 0;
+    prevDirX = 0;
+    prevDirY = 0;
 
     
     //Using tolower function to always stay on lower case keys
@@ -26,11 +32,71 @@ void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, c
     keyDispose = tolower(kE);
 }
 
+void Player::applySpringEffect(int newSpeed, int newCycles, int newDirX, int newDirY) {
+    speed = newSpeed;
+    remainingSpringCycles = newCycles;
+    springDirX = newDirX;
+    springDirY = newDirY;
+    // Set direction to spring direction
+    dir_x = springDirX;
+    dir_y = springDirY;
+}
+
 void Player::setDirection(char key) {
     key = tolower(key);
 
     if (key == keyDispose) return;
 
+    // Store previous direction before changing
+    prevDirX = dir_x;
+    prevDirY = dir_y;
+
+    // During spring effect, allow only sideways movement (perpendicular to spring direction)
+    if (remainingSpringCycles > 0) {
+        // Block STAY and backward movement
+        if (key == keyStay) {
+            return;
+        }
+        
+        // Determine the input direction
+        int newDirX = 0, newDirY = 0;
+        if (key == keyUp) {
+            newDirX = 0; newDirY = -1;
+        }
+        else if (key == keyDown) {
+            newDirX = 0; newDirY = 1;
+        }
+        else if (key == keyLeft) {
+            newDirX = -1; newDirY = 0;
+        }
+        else if (key == keyRight) {
+            newDirX = 1; newDirY = 0;
+        }
+        
+        // Block backward movement against spring direction
+        if ((springDirX != 0 && newDirX == -springDirX) || 
+            (springDirY != 0 && newDirY == -springDirY)) {
+            return;
+        }
+        
+        // Allow sideways movement (perpendicular to spring direction)
+        if (springDirX != 0) {
+            // Spring is horizontal, allow vertical sideways
+            if (newDirY != 0) {
+                dir_x = newDirX;
+                dir_y = newDirY;
+            }
+        } else if (springDirY != 0) {
+            // Spring is vertical, allow horizontal sideways
+            if (newDirX != 0) {
+                dir_x = newDirX;
+                dir_y = newDirY;
+            }
+        }
+        return;
+    }
+
+    // Normal movement (no spring effect)
     if (key == keyUp) {
         dir_x = 0; dir_y = -1;
     }
@@ -48,6 +114,16 @@ void Player::setDirection(char key) {
     }
 }
 
+bool Player::hasDirectionChanged() const {
+    return (dir_x != prevDirX || dir_y != prevDirY);
+}
+
+bool Player::pressedStay() const {
+    // Check if player is stopped (dir is 0,0) and was moving before
+    // This indicates STAY key was pressed
+    return (dir_x == 0 && dir_y == 0 && (prevDirX != 0 || prevDirY != 0));
+}
+
 void Player::erase(Level& level) {
     gotoxy(x, y);
     char cell = level.getCharAt(x, y);
@@ -63,8 +139,191 @@ void Player::draw() {
     setTextColor(WHITE);
 }
 
-char Player::move(Level& level) { //players' movments with wrap-around
+char Player::move(Level& level, Player* otherPlayer) { //players' movments with wrap-around
                                   //HEIGHT and WIDTH are from Level.h 
+    
+    // Handle spring acceleration effect
+    if (remainingSpringCycles > 0) {
+        char collisionResult = ' ';
+        
+        // STEP-BY-STEP FORWARD MOVEMENT: repeat 'speed' times, 1 cell at a time
+        for (int step = 0; step < speed; step++) {
+            int next_x = x + springDirX;
+            int next_y = y + springDirY;
+            
+            // Apply wrap-around
+            if (next_x < 0) next_x = WIDTH - 1;
+            else if (next_x >= WIDTH) next_x = 0;
+            if (next_y < 0) next_y = HEIGHT - 1;
+            else if (next_y >= HEIGHT) next_y = 0;
+            
+            char nextCell = level.getCharAt(next_x, next_y);
+            
+            // Check for wall collision - if wall, stop spring immediately and stay in place
+            if (nextCell == 'W') {
+                remainingSpringCycles = 0;
+                speed = 1;
+                springDirX = 0;
+                springDirY = 0;
+                dir_x = 0;
+                dir_y = 0;
+                return ' ';
+            }
+            
+            // Check for collision with other player
+            if (otherPlayer != nullptr && next_x == otherPlayer->getX() && next_y == otherPlayer->getY()) {
+                // Transfer spring effect to other player
+                otherPlayer->applySpringEffect(speed, remainingSpringCycles, springDirX, springDirY);
+            }
+            
+            // Handle switches
+            if (nextCell == '/') {
+                level.setCharAt(next_x, next_y, '\\');
+            }
+            else if (nextCell == '\\') {
+                level.setCharAt(next_x, next_y, '/');
+            }
+            
+            // Handle special cells that block movement
+            if (nextCell == '1') {
+                // Door '1' - check if open
+                if (!level.isDoor1Open()) {
+                    // Door is locked, stop spring immediately
+                    remainingSpringCycles = 0;
+                    speed = 1;
+                    springDirX = 0;
+                    springDirY = 0;
+                    dir_x = 0;
+                    dir_y = 0;
+                    return '1'; // Return door collision code
+                }
+            }
+            
+            // Move player one cell forward
+            erase(level);
+            x = next_x;
+            y = next_y;
+            draw();
+            
+            // Check for collision returns (doors, items, etc.)
+            if (nextCell == '?') {
+                collisionResult = '?';
+                break; // Stop forward movement on item collision
+            }
+            if (nextCell == '3') {
+                collisionResult = '3';
+                break; // Stop forward movement on door collision
+            }
+            if (nextCell == '1' && level.isDoor1Open()) {
+                collisionResult = '1';
+                break; // Stop forward movement on door collision
+            }
+            if (nextCell == '2') {
+                collisionResult = '2';
+                break; // Stop forward movement on door collision
+            }
+            if (isdigit(nextCell) && nextCell != '0') {
+                collisionResult = nextCell;
+                break; // Stop forward movement on digit collision
+            }
+        }
+        
+        // OPTIONAL SIDEWAYS MOVEMENT: at most 1 cell per cycle, perpendicular only
+        int sidewaysX = 0;
+        int sidewaysY = 0;
+        
+        if (springDirX != 0) {
+            // Spring is horizontal, allow vertical sideways movement
+            if (dir_y != 0) {
+                sidewaysY = dir_y;  // Normal speed (1)
+            }
+        } else if (springDirY != 0) {
+            // Spring is vertical, allow horizontal sideways movement
+            if (dir_x != 0) {
+                sidewaysX = dir_x;  // Normal speed (1)
+            }
+        }
+        
+        // Prevent backward movement against spring direction
+        if ((springDirX != 0 && dir_x == -springDirX) || 
+            (springDirY != 0 && dir_y == -springDirY)) {
+            sidewaysX = 0;
+            sidewaysY = 0;
+        }
+        
+        // Apply sideways movement (one extra single-cell step)
+        if (sidewaysX != 0 || sidewaysY != 0) {
+            int next_x = x + sidewaysX;
+            int next_y = y + sidewaysY;
+            
+            // Apply wrap-around
+            if (next_x < 0) next_x = WIDTH - 1;
+            else if (next_x >= WIDTH) next_x = 0;
+            if (next_y < 0) next_y = HEIGHT - 1;
+            else if (next_y >= HEIGHT) next_y = 0;
+            
+            char nextCell = level.getCharAt(next_x, next_y);
+            
+            // Check for wall collision
+            if (nextCell == 'W') {
+                // Wall blocks sideways movement, but don't stop spring
+                // Player stays at current position
+            }
+            // Check for collision with other player
+            else if (otherPlayer != nullptr && next_x == otherPlayer->getX() && next_y == otherPlayer->getY()) {
+                // Transfer spring effect to other player
+                otherPlayer->applySpringEffect(speed, remainingSpringCycles, springDirX, springDirY);
+                // Move player
+                erase(level);
+                x = next_x;
+                y = next_y;
+                draw();
+            }
+            // Check for locked door
+            else if (nextCell == '1' && !level.isDoor1Open()) {
+                // Door blocks sideways movement, but don't stop spring
+                // Player stays at current position
+            }
+            // Otherwise, allow sideways movement
+            else {
+                // Handle switches
+                if (nextCell == '/') {
+                    level.setCharAt(next_x, next_y, '\\');
+                }
+                else if (nextCell == '\\') {
+                    level.setCharAt(next_x, next_y, '/');
+                }
+                
+                erase(level);
+                x = next_x;
+                y = next_y;
+                draw();
+                
+                // Update collision result if needed
+                if (nextCell == '?') collisionResult = '?';
+                else if (nextCell == '3') collisionResult = '3';
+                else if (nextCell == '1' && level.isDoor1Open()) collisionResult = '1';
+                else if (nextCell == '2') collisionResult = '2';
+                else if (isdigit(nextCell) && nextCell != '0') collisionResult = nextCell;
+            }
+        }
+        
+        // Decrement cycles AFTER all movement
+        remainingSpringCycles--;
+        
+        // If spring ends now → reset and STAY in place afterwards
+        if (remainingSpringCycles == 0) {
+            speed = 1;
+            springDirX = 0;
+            springDirY = 0;
+            dir_x = 0;
+            dir_y = 0;
+        }
+        
+        return collisionResult;
+    }
+    
+    // Normal movement (no spring effect)
     if (dir_x == 0 && dir_y == 0) return ' ';
 
     int next_x = x + dir_x;
@@ -218,11 +477,4 @@ char Player::dispose(Level& level, int& outX, int& outY) {
         }
     }
     return 0; // Nothing was disposed
-}
-
-void Player::applySpringEffect(int newSpeed, int newCycles, int newDirX, int newDirY) {
-    speed = newSpeed;
-    remainingSpringCycles = newCycles;
-    springDirX = newDirX;
-    springDirY = newDirY;
 }

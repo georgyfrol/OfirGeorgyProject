@@ -23,11 +23,12 @@ class Spring {
     int wallDirX, wallDirY;    // Wall direction (dx, dy)
     bool isCompressed;         // Whether spring is currently compressed
     int compressedLength;      // Number of cells hidden by compression
+    const Player* activePlayer; // Player currently compressing the spring (nullptr if none)
     int lastPlayerPosX, lastPlayerPosY;  // Track previous player position for step detection
     
 public:
     Spring() : orientation(HORIZONTAL), length(0), wallDirX(0), wallDirY(0), 
-               isCompressed(false), compressedLength(0), lastPlayerPosX(-1), lastPlayerPosY(-1) {}
+               isCompressed(false), compressedLength(0), activePlayer(nullptr), lastPlayerPosX(-1), lastPlayerPosY(-1) {}
     
     void addCell(int x, int y) {
         cells.push_back(SpringCell(x, y));
@@ -77,9 +78,5 @@ public:
     
     // Release spring: restore cells, launch player, reset compression
     void release(Player& player, Level& level);
-    
-    // Getters for compression state
-    bool getIsCompressed() const { return isCompressed; }
-    int getCompressedLength() const { return compressedLength; }
 };
 
