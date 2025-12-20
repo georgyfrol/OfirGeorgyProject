@@ -126,6 +126,12 @@ void Game::runGame() {
         char p2Result = p2.move(level);
         p1.draw();
 
+        // Update spring compression for each spring and each player
+        for (auto& spring : level.getSprings()) {
+            spring.updateCompression(p1, level);
+            spring.updateCompression(p2, level);
+        }
+
         if (p1Result == '?') {
             handleRiddle(p1);
             p1.draw(); p2.draw();

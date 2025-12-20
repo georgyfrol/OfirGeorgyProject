@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Riddle.h"
+#include "Spring.h"
 
 const int HEIGHT = 25;
 const int WIDTH = 80;
@@ -14,6 +15,7 @@ class Level {
 	bool door1Open;         // Whether Door 1 is open
 	bool door2Open;         // Whether Door 2 is open (controlled by switches)
 	vector<Riddle> riddles;
+	vector<Spring> springs;  // All springs detected from the map
 
 public:
 	// initialize the hardcoded map
@@ -43,4 +45,9 @@ public:
 	void addRiddle(Riddle r);
 	const Riddle* getRiddle(int x, int y);
 	void removeRiddle(int x, int y);
+	
+	// Spring management
+	void detectSprings();  // Scan map and create Spring objects from '#' characters
+	const vector<Spring>& getSprings() const { return springs; }
+	vector<Spring>& getSprings() { return springs; }
 };

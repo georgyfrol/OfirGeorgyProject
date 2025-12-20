@@ -1,6 +1,7 @@
 #include "Level.h"
 #include "io_utils.h"
 #include "LevelData.h"
+#include "Spring.h"
 #include <iostream>
 #include <cctype>
 #include <vector>
@@ -44,6 +45,9 @@ void Level::init(int levelNum) {
         door1Open = true;
         door2Open = true;
     }
+    
+    // Detect and initialize springs from the map
+    detectSprings();
 }
 
 void Level::printLevel() {
@@ -126,6 +130,11 @@ void Level::drawItems() {
                 gotoxy(x, y);
                 cout << '@';
             }
+            else if (c == '#') {
+                setTextColor(Color::LIGHTCYAN);
+                gotoxy(x, y);
+                cout << '#';
+            }
         }
     }
     setTextColor(Color::WHITE);  // Reset to white
@@ -184,6 +193,153 @@ void Level::removeRiddle(int x, int y) {
         if (it->getX() == x && it->getY() == y) {
             riddles.erase(it);
             return;
+        }
+    }
+}
+
+void Level::detectSprings() {
+    springs.clear();
+    
+    // Track which cells have been processed
+    bool processed[HEIGHT][WIDTH] = {false};
+    
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            if (map[y][x] == '#' && !processed[y][x]) {
+                // Found a new spring cell, start building a spring
+                Spring spring;
+                
+                // Check if it's horizontal or vertical by checking neighbors
+                bool isHorizontal = false;
+                bool isVertical = false;
+                
+                // Check right neighbor
+                if (x + 1 < WIDTH && map[y][x + 1] == '#') {
+                    isHorizontal = true;
+                }
+                // Check bottom neighbor
+                else if (y + 1 < HEIGHT && map[y + 1][x] == '#') {
+                    isVertical = true;
+                }
+                // Single cell spring - check which side has wall
+                else {
+                    // Check all four directions for wall
+                    if (x - 1 >= 0 && map[y][x - 1] == 'W') {
+                        isHorizontal = true;
+                    }
+                    else if (x + 1 < WIDTH && map[y][x + 1] == 'W') {
+                        isHorizontal = true;
+                    }
+                    else if (y - 1 >= 0 && map[y - 1][x] == 'W') {
+                        isVertical = true;
+                    }
+                    else if (y + 1 < HEIGHT && map[y + 1][x] == 'W') {
+                        isVertical = true;
+                    }
+                    else {
+                        // Default to horizontal if unclear
+                        isHorizontal = true;
+                    }
+                }
+                
+                // Build the spring by collecting all consecutive '#' cells
+                if (isHorizontal) {
+                    spring.setOrientation(HORIZONTAL);
+                    int startX = x;
+                    // Collect all consecutive '#' in this row
+                    while (startX < WIDTH && map[y][startX] == '#') {
+                        spring.addCell(startX, y);
+                        processed[y][startX] = true;
+                        startX++;
+                    }
+                }
+                else if (isVertical) {
+                    spring.setOrientation(VERTICAL);
+                    int startY = y;
+                    // Collect all consecutive '#' in this column
+                    while (startY < HEIGHT && map[startY][x] == '#') {
+                        spring.addCell(x, startY);
+                        processed[startY][x] = true;
+                        startY++;
+                    }
+                }
+                
+                // Determine wall direction
+                // Find which end of the spring is adjacent to a wall
+                const vector<SpringCell>& cells = spring.getCells();
+                if (cells.size() > 0) {
+                    // Check first cell (one end)
+                    int firstX = cells[0].x;
+                    int firstY = cells[0].y;
+                    bool firstHasWall = false;
+                    int wallDirX = 0, wallDirY = 0;
+                    
+                    // Check last cell (other end)
+                    int lastX = cells[cells.size() - 1].x;
+                    int lastY = cells[cells.size() - 1].y;
+                    bool lastHasWall = false;
+                    
+                    if (spring.getOrientation() == HORIZONTAL) {
+                        // Check left side of first cell
+                        if (firstX - 1 >= 0 && map[firstY][firstX - 1] == 'W') {
+                            firstHasWall = true;
+                            wallDirX = -1;
+                            wallDirY = 0;
+                        }
+                        // Check right side of last cell
+                        else if (lastX + 1 < WIDTH && map[lastY][lastX + 1] == 'W') {
+                            lastHasWall = true;
+                            wallDirX = 1;
+                            wallDirY = 0;
+                        }
+                    }
+                    else { // VERTICAL
+                        // Check top side of first cell
+                        if (firstY - 1 >= 0 && map[firstY - 1][firstX] == 'W') {
+                            firstHasWall = true;
+                            wallDirX = 0;
+                            wallDirY = -1;
+                        }
+                        // Check bottom side of last cell
+                        else if (lastY + 1 < HEIGHT && map[lastY + 1][lastX] == 'W') {
+                            lastHasWall = true;
+                            wallDirX = 0;
+                            wallDirY = 1;
+                        }
+                    }
+                    
+                    // If no wall found at ends, check if spring is adjacent to wall
+                    if (!firstHasWall && !lastHasWall) {
+                        // Check all cells for adjacent walls
+                        for (const auto& cell : cells) {
+                            if (cell.x - 1 >= 0 && map[cell.y][cell.x - 1] == 'W') {
+                                wallDirX = -1;
+                                wallDirY = 0;
+                                break;
+                            }
+                            if (cell.x + 1 < WIDTH && map[cell.y][cell.x + 1] == 'W') {
+                                wallDirX = 1;
+                                wallDirY = 0;
+                                break;
+                            }
+                            if (cell.y - 1 >= 0 && map[cell.y - 1][cell.x] == 'W') {
+                                wallDirX = 0;
+                                wallDirY = -1;
+                                break;
+                            }
+                            if (cell.y + 1 < HEIGHT && map[cell.y + 1][cell.x] == 'W') {
+                                wallDirX = 0;
+                                wallDirY = 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    spring.setWallDirection(wallDirX, wallDirY);
+                }
+                
+                springs.push_back(spring);
+            }
         }
     }
 }

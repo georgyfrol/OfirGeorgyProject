@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Level.h"
 #include "Bomb.h"
+#include "Spring.h"
 #include <vector>
 
 
