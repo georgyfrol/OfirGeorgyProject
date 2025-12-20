@@ -28,7 +28,7 @@ public:
             layout[7]  = "W     W          W            W           W            W  W         \\W      W  W";
             layout[8]  = "WWWWWWWW       WWW  WWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWW  WWWWWWWWWWWW      WWWW";
             layout[9]  = "W####               W                                             **       ####W";
-            layout[10] = "WWWWWWWW            W  WWWWWWWWWWWWWWWW2WWWWWWWWWWWWWWW  WWWWWWWWWWWWW     WWWWW";
+            layout[10] = "WWWWWWWW            W  WWWWWWWWWWWWWWWW2WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW     WWWWW";
             layout[11] = "W                   W  W                         W  K W                        W";
             layout[12] = "W  WWWWWWWWWWWWWWWWWW  W    @                    W    W  WWWWWWWWWWWWWWWWWWWW  W";
             layout[13] = "W  W                   W                         WWWWWW                     W  W";
