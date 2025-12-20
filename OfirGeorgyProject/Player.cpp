@@ -219,3 +219,10 @@ char Player::dispose(Level& level, int& outX, int& outY) {
     }
     return 0; // Nothing was disposed
 }
+
+void Player::applySpringEffect(int newSpeed, int newCycles, int newDirX, int newDirY) {
+    speed = newSpeed;
+    remainingSpringCycles = newCycles;
+    springDirX = newDirX;
+    springDirY = newDirY;
+}
