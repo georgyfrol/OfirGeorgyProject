@@ -2,9 +2,12 @@
 #include "io_utils.h"
 #include "LevelData.h"
 #include "Spring.h"
+#include "Obstacle.h"
 #include <iostream>
 #include <cctype>
 #include <vector>
+#include <queue>
+#include <utility>
 
 using namespace std;
 
@@ -48,6 +51,9 @@ void Level::init(int levelNum) {
     
     // Detect and initialize springs from the map
     detectSprings();
+    
+    // Detect and initialize obstacles from the map
+    detectObstacles();
 }
 
 void Level::printLevel() {
@@ -342,4 +348,61 @@ void Level::detectSprings() {
             }
         }
     }
+}
+
+void Level::detectObstacles() {
+    obstacles.clear();
+    
+    // Track which cells have been processed
+    bool processed[HEIGHT][WIDTH] = {false};
+    
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            if (map[y][x] == '*' && !processed[y][x]) {
+                // Found a new obstacle cell, use flood-fill to collect all adjacent cells
+                Obstacle obstacle;
+                queue<pair<int, int>> toProcess;
+                
+                toProcess.push({x, y});
+                processed[y][x] = true;
+                
+                while (!toProcess.empty()) {
+                    pair<int, int> current = toProcess.front();
+                    toProcess.pop();
+                    
+                    int cx = current.first;
+                    int cy = current.second;
+                    
+                    obstacle.addCell(cx, cy);
+                    
+                    // Check all 4 adjacent directions (not diagonals)
+                    int dx[] = {0, 1, 0, -1};
+                    int dy[] = {-1, 0, 1, 0};
+                    
+                    for (int i = 0; i < 4; i++) {
+                        int nx = cx + dx[i];
+                        int ny = cy + dy[i];
+                        
+                        if (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT) {
+                            if (map[ny][nx] == '*' && !processed[ny][nx]) {
+                                processed[ny][nx] = true;
+                                toProcess.push({nx, ny});
+                            }
+                        }
+                    }
+                }
+                
+                obstacles.push_back(obstacle);
+            }
+        }
+    }
+}
+
+Obstacle* Level::getObstacleAt(int x, int y) {
+    for (Obstacle& obstacle : obstacles) {
+        if (obstacle.contains(x, y)) {
+            return &obstacle;
+        }
+    }
+    return nullptr;
 }

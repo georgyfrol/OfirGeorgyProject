@@ -129,6 +129,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="io_utils.h" />
     <ClInclude Include="LevelData.h" />
+    <ClInclude Include="Obstacle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Riddle.h" />
     <ClInclude Include="Spring.h" />
@@ -139,6 +140,7 @@
     <ClCompile Include="io_utils.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Obstacle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Riddle.cpp" />
     <ClCompile Include="Spring.cpp" />

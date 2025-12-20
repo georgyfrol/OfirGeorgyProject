@@ -2,8 +2,10 @@
 #include "io_utils.h"
 #include "Level.h"
 #include "Color.h"
+#include "Obstacle.h"
 #include <iostream>
 #include <cctype>   // For tolower function
+#include <cmath>    // For abs function
 
 using namespace std;
 
@@ -40,6 +42,14 @@ void Player::applySpringEffect(int newSpeed, int newCycles, int newDirX, int new
     // Set direction to spring direction
     dir_x = springDirX;
     dir_y = springDirY;
+}
+
+int Player::getForce() const {
+    // Normal force is 1, but if under spring effect, force equals speed
+    if (remainingSpringCycles > 0) {
+        return speed;
+    }
+    return 1;
 }
 
 void Player::setDirection(char key) {
@@ -170,6 +180,59 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
                 return ' ';
             }
             
+            // Check for obstacle
+            if (nextCell == '*') {
+                Obstacle* obstacle = level.getObstacleAt(next_x, next_y);
+                if (obstacle != nullptr) {
+                    // Calculate total force
+                    int totalForce = getForce();
+                    
+                    // Check if other player is adjacent and moving in same direction
+                    if (otherPlayer != nullptr) {
+                        int otherX = otherPlayer->getX();
+                        int otherY = otherPlayer->getY();
+                        int otherDirX = otherPlayer->getDirX();
+                        int otherDirY = otherPlayer->getDirY();
+                        
+                        // Check if other player is adjacent (directly adjacent, not diagonal)
+                        bool isAdjacent = (abs(otherX - x) + abs(otherY - y) == 1);
+                        
+                        // Check if other player is moving in same direction
+                        bool sameDirection = (otherDirX == springDirX && otherDirY == springDirY);
+                        
+                        if (isAdjacent && sameDirection) {
+                            totalForce += otherPlayer->getForce();
+                        }
+                    }
+                    
+                    // Check if force is sufficient to push obstacle
+                    if (totalForce >= obstacle->getSize()) {
+                        // Push obstacle in the direction of movement
+                        if (obstacle->canPush(springDirX, springDirY, level)) {
+                            obstacle->push(springDirX, springDirY, level);
+                        } else {
+                            // Obstacle cannot be pushed (blocked by wall or another obstacle)
+                            remainingSpringCycles = 0;
+                            speed = 1;
+                            springDirX = 0;
+                            springDirY = 0;
+                            dir_x = 0;
+                            dir_y = 0;
+                            return ' ';
+                        }
+                    } else {
+                        // Insufficient force, block movement
+                        remainingSpringCycles = 0;
+                        speed = 1;
+                        springDirX = 0;
+                        springDirY = 0;
+                        dir_x = 0;
+                        dir_y = 0;
+                        return ' ';
+                    }
+                }
+            }
+            
             // Check for collision with other player
             if (otherPlayer != nullptr && next_x == otherPlayer->getX() && next_y == otherPlayer->getY()) {
                 // Transfer spring effect to other player
@@ -269,6 +332,51 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
                 // Wall blocks sideways movement, but don't stop spring
                 // Player stays at current position
             }
+            // Check for obstacle
+            else if (nextCell == '*') {
+                Obstacle* obstacle = level.getObstacleAt(next_x, next_y);
+                if (obstacle != nullptr) {
+                    // Calculate total force (for sideways, use normal force = 1)
+                    int totalForce = 1;  // Sideways movement is always at normal speed
+                    
+                    // Check if other player is adjacent and moving in same sideways direction
+                    if (otherPlayer != nullptr) {
+                        int otherX = otherPlayer->getX();
+                        int otherY = otherPlayer->getY();
+                        int otherDirX = otherPlayer->getDirX();
+                        int otherDirY = otherPlayer->getDirY();
+                        
+                        // Check if other player is adjacent (directly adjacent, not diagonal)
+                        bool isAdjacent = (abs(otherX - x) + abs(otherY - y) == 1);
+                        
+                        // Check if other player is moving in same sideways direction
+                        bool sameDirection = (otherDirX == sidewaysX && otherDirY == sidewaysY);
+                        
+                        if (isAdjacent && sameDirection) {
+                            totalForce += 1;  // Other player's sideways force is also 1
+                        }
+                    }
+                    
+                    // Check if force is sufficient to push obstacle
+                    if (totalForce >= obstacle->getSize()) {
+                        // Push obstacle in the sideways direction
+                        if (obstacle->canPush(sidewaysX, sidewaysY, level)) {
+                            obstacle->push(sidewaysX, sidewaysY, level);
+                            // Move player after pushing obstacle
+                            erase(level);
+                            x = next_x;
+                            y = next_y;
+                            draw();
+                        } else {
+                            // Obstacle cannot be pushed, block sideways movement
+                            // Player stays at current position
+                        }
+                    } else {
+                        // Insufficient force, block sideways movement
+                        // Player stays at current position
+                    }
+                }
+            }
             // Check for collision with other player
             else if (otherPlayer != nullptr && next_x == otherPlayer->getX() && next_y == otherPlayer->getY()) {
                 // Transfer spring effect to other player
@@ -355,6 +463,57 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
         y = next_y;
         draw();
         return ' ';
+    }
+
+    // Check for obstacle
+    if (nextCell == '*') {
+        Obstacle* obstacle = level.getObstacleAt(next_x, next_y);
+        if (obstacle != nullptr) {
+            // Calculate total force
+            int totalForce = getForce();
+            
+            // Check if other player is adjacent and moving in same direction
+            if (otherPlayer != nullptr) {
+                int otherX = otherPlayer->getX();
+                int otherY = otherPlayer->getY();
+                int otherDirX = otherPlayer->getDirX();
+                int otherDirY = otherPlayer->getDirY();
+                
+                // Check if other player is adjacent (directly adjacent, not diagonal)
+                bool isAdjacent = (abs(otherX - x) + abs(otherY - y) == 1);
+                
+                // Check if other player is moving in same direction
+                bool sameDirection = (otherDirX == dir_x && otherDirY == dir_y);
+                
+                if (isAdjacent && sameDirection) {
+                    totalForce += otherPlayer->getForce();
+                }
+            }
+            
+            // Check if force is sufficient to push obstacle
+            if (totalForce >= obstacle->getSize()) {
+                // Push obstacle in the direction of movement
+                if (obstacle->canPush(dir_x, dir_y, level)) {
+                    obstacle->push(dir_x, dir_y, level);
+                    // Move player after pushing obstacle
+                    erase(level);
+                    x = next_x;
+                    y = next_y;
+                    draw();
+                    return ' ';
+                } else {
+                    // Obstacle cannot be pushed (blocked by wall or another obstacle)
+                    dir_x = 0;
+                    dir_y = 0;
+                    return ' ';
+                }
+            } else {
+                // Insufficient force, block movement
+                dir_x = 0;
+                dir_y = 0;
+                return ' ';
+            }
+        }
     }
 
     if (nextCell == '?') return '?';

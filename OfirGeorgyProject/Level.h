@@ -3,6 +3,7 @@
 #include <vector>
 #include "Riddle.h"
 #include "Spring.h"
+#include "Obstacle.h"
 
 const int HEIGHT = 25;
 const int WIDTH = 80;
@@ -16,6 +17,7 @@ class Level {
 	bool door2Open;         // Whether Door 2 is open (controlled by switches)
 	vector<Riddle> riddles;
 	vector<Spring> springs;  // All springs detected from the map
+	vector<Obstacle> obstacles;  // All obstacles detected from the map
 
 public:
 	// initialize the hardcoded map
@@ -50,4 +52,10 @@ public:
 	void detectSprings();  // Scan map and create Spring objects from '#' characters
 	const vector<Spring>& getSprings() const { return springs; }
 	vector<Spring>& getSprings() { return springs; }
+	
+	// Obstacle management
+	void detectObstacles();  // Scan map and create Obstacle objects from '*' characters
+	const vector<Obstacle>& getObstacles() const { return obstacles; }
+	vector<Obstacle>& getObstacles() { return obstacles; }
+	Obstacle* getObstacleAt(int x, int y);  // Get obstacle at position, or nullptr if none
 };

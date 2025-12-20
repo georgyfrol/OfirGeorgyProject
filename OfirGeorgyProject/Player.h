@@ -67,4 +67,7 @@ public:
     // STAY input flag methods
     void setStayPressed(bool pressed) { stayPressedThisCycle = pressed; }
     void resetStayPressed() { stayPressedThisCycle = false; }
+    
+    // Force calculation for obstacle pushing
+    int getForce() const;  // Returns 1 normally, or speed if under spring effect
 };
