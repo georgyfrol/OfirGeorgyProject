@@ -56,18 +56,20 @@ void Level::init(int levelNum) {
     if (levelNum == 1) {
         door1KeysRequired = 2;  // Door 1 requires 2 keys
         door1Open = false;
-        door2Open = true;  // Door 2 doesn't exist in level 1
+        door2Open = true;
+        setDark(false);
     }
     else if (levelNum == 2) {
-        setDark(true);
         door1KeysRequired = 0;  // Door 1 doesn't exist in level 2
         door1Open = true;
         door2Open = false;  // Door 2 starts closed, requires switches
+        setDark(true);
     }
     else {
         door1KeysRequired = 0;
         door1Open = true;
         door2Open = true;
+        setDark(false);
     }
     
     // Detect and initialize springs from the map
@@ -83,8 +85,8 @@ void Level::printLevel() {
             char c = map[i][j];
             gotoxy(j, i);
             setMapColor(c);
-            if (c == '1' && door1Open) setTextColor(Color::GREEN);
-            if (c == '2' && door2Open) setTextColor(Color::GREEN);
+            if (c == '1' && door1Open) cout << ' ';
+            if (c == '2' && door2Open) cout << ' ';
 
             cout << c;
         }
@@ -179,7 +181,9 @@ void Level::setCharAt(int x, int y, char c) {
     if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
         map[y][x] = c;
         gotoxy(x, y);
+        setMapColor(c);
         cout << c;
+        setTextColor(Color::WHITE);
     }
 }
 
