@@ -135,11 +135,7 @@ bool Player::pressedStay() const {
 }
 
 void Player::erase(Level& level) {
-    gotoxy(x, y);
-    char cell = level.getCharAt(x, y);
-
-    if (cell == ' ') cout << ' ';
-    else cout << cell;
+    level.setCharAt(x, y, level.getCharAt(x, y));
 }
 
 void Player::draw() {

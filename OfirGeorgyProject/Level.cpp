@@ -158,8 +158,16 @@ void Level::setCharAt(int x, int y, char c) {
     if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
         map[y][x] = c;
         gotoxy(x, y);
-        setMapColor(c);
-        cout << c;
+        if (c == '1' && door1Open) {
+            cout << ' ';
+        }
+        else if (c == '2' && door2Open) {
+            cout << ' ';
+        }
+        else {
+            setMapColor(c);
+            cout << c;
+        }
         setTextColor(Color::WHITE);
     }
 }
