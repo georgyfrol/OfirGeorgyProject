@@ -84,11 +84,15 @@ void Level::printLevel() {
         for (int j = 0; j < WIDTH; j++) {
             char c = map[i][j];
             gotoxy(j, i);
-            setMapColor(c);
-            if (c == '1' && door1Open) cout << ' ';
-            if (c == '2' && door2Open) cout << ' ';
 
-            cout << c;
+            // if the door open print space
+            if ((c == '1' && door1Open) || (c == '2' && door2Open)) {
+                cout << ' ';
+            }
+            else {
+                setMapColor(c);
+                cout << c;
+            }
         }
     }
     setTextColor(Color::WHITE);
@@ -100,27 +104,26 @@ void Level::drawDoors() {
         for (int x = 0; x < WIDTH; x++) {
             char c = map[y][x];
             if (c == '1') {
-                // Door '1' - RED if locked, GREEN if open
-                if (door1Open) {
-                    setTextColor(Color::GREEN);
-                } else {
-                    setTextColor(Color::RED);
-                }
                 gotoxy(x, y);
-                cout << '1';
+                if (door1Open) {
+                    cout << ' ';
+                }
+                else {
+                    setTextColor(Color::LIGHTRED);
+                    cout << '1';
+                }
             }
             else if (c == '2') {
-                // Door '2' - RED if locked, GREEN if open
-                if (door2Open) {
-                    setTextColor(Color::GREEN);
-                } else {
-                    setTextColor(Color::RED);
-                }
                 gotoxy(x, y);
-                cout << '2';
+                if (door2Open) {
+                    cout << ' ';
+                }
+                else {
+                    setTextColor(Color::LIGHTRED);
+                    cout << '2';
+                }
             }
             else if (c == '3') {
-                // Door '3' - Always GREEN (always open/available)
                 setTextColor(Color::GREEN);
                 gotoxy(x, y);
                 cout << '3';
@@ -131,43 +134,17 @@ void Level::drawDoors() {
 }
 
 void Level::drawItems() {
-    // Scan the map for items and draw them with appropriate colors
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             char c = map[y][x];
-            if (c == '\\') {
-                setTextColor(Color::YELLOW);
+            if (c == '\\' || c == '/' || c == '?' || c == 'K' || c == '@' || c == '#') {
                 gotoxy(x, y);
-                cout << '\\';
-            }
-            else if (c == '/') {
-                setTextColor(Color::YELLOW);
-                gotoxy(x, y);
-                cout << '/';
-            }
-            else if (c == '?') {
-                setTextColor(Color::CYAN);
-                gotoxy(x, y);
-                cout << '?';
-            }
-            else if (c == 'K') {
-                setTextColor(Color::YELLOW);
-                gotoxy(x, y);
-                cout << 'K';
-            }
-            else if (c == '@') {
-                setTextColor(Color::LIGHTRED);
-                gotoxy(x, y);
-                cout << '@';
-            }
-            else if (c == '#') {
-                setTextColor(Color::LIGHTCYAN);
-                gotoxy(x, y);
-                cout << '#';
+                setMapColor(c);
+                cout << c;
             }
         }
     }
-    setTextColor(Color::WHITE);  // Reset to white
+    setTextColor(Color::WHITE);
 }
 
 char Level::getCharAt(int x, int y) {
@@ -457,15 +434,17 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
             char c = map[i][j];
             bool litByP1 = p1Torch && Torch::isLit(j, i, p1x, p1y);
             bool litByP2 = p2Torch && Torch::isLit(j, i, p2x, p2y);
-
+            
             if (litByP1 || litByP2 || c == '!') {
                 gotoxy(j, i);
-                setMapColor(c);
 
-                if (c == '1' && door1Open) setTextColor(Color::GREEN);
-                if (c == '2' && door2Open) setTextColor(Color::GREEN);
-
-                cout << c;
+                if ((c == '1' && door1Open) || (c == '2' && door2Open)) {
+                    cout << ' ';
+                }
+                else {
+                    setMapColor(c);
+                    cout << c;
+                }
             }
             else {
                 gotoxy(j, i);
