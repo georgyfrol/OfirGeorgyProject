@@ -40,6 +40,7 @@ void Level::init(int levelNum) {
         door2Open = true;  // Door 2 doesn't exist in level 1
     }
     else if (levelNum == 2) {
+        setDark(true);
         door1KeysRequired = 0;  // Door 1 doesn't exist in level 2
         door1Open = true;
         door2Open = false;  // Door 2 starts closed, requires switches

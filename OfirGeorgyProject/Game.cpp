@@ -122,15 +122,15 @@ void Game::runGame() {
         level.drawItems();
         
         // Move players and check for level transitions
-        char p1Result = p1.move(level, &p2);
+        char p1Result = p1.move(level);
         p2.draw();
-        char p2Result = p2.move(level, &p1);
+        char p2Result = p2.move(level);
         p1.draw();
 
+        //lighting
         bool p1HasTorch = (p1.getInventory() == Torch::SYMBOL);
         bool p2HasTorch = (p2.getInventory() == Torch::SYMBOL);
-
-         if (level.isLevelDark()) {
+        if (level.isLevelDark()) {
             level.updateLighting(p1.getX(), p1.getY(), p1HasTorch, p2.getX(), p2.getY(), p2HasTorch);
         }
 
@@ -172,6 +172,7 @@ void Game::runGame() {
         Sleep(100);
     }
 }
+
 void Game::displayInstructions() {
     clear_screen();
     gotoxy(10, 3);  cout << "--- Instructions and Keys ---";

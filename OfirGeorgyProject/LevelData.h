@@ -25,7 +25,7 @@ public:
             layout[4]  = "W  W  WWWWWW  W  W  WWWWWWWWWWW  W  W  W  WWWWWWWWWWWWWW  W  W  WWWWWW      W  W";
             layout[5]  = "W  W  W       W  W  W            W     W  W            W  W  W      \\W         W";  // double backslash prints as a single one
             layout[6]  = "W  W  W  WWWWWW  W  W  WWWWWWWWWWWWWWWWW  W  WWWWWWWW  W  W  WWWWWWWWW      W  W";
-            layout[7]  = "W     W          W            W           W            W  W         \\W      W  W";
+            layout[7]  = "W 3   W          W            W           W            W  W         \\W      W  W";
             layout[8]  = "WWWWWWWW       WWW  WWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWW  WWWWWWWWWWWW      WWWW";
             layout[9]  = "W####               W                                             **       ####W";
             layout[10] = "WWWWWWWW            W  WWWWWWWWWWWWWWWW2WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW     WWWWW";
