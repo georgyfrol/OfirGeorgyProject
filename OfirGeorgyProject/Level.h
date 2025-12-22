@@ -18,6 +18,7 @@ class Level {
 	vector<Riddle> riddles;
 	vector<Spring> springs;  // All springs detected from the map
 	vector<Obstacle> obstacles;  // All obstacles detected from the map
+	bool isDark = false;
 
 public:
 	// initialize the hardcoded map
@@ -58,4 +59,8 @@ public:
 	const vector<Obstacle>& getObstacles() const { return obstacles; }
 	vector<Obstacle>& getObstacles() { return obstacles; }
 	Obstacle* getObstacleAt(int x, int y);  // Get obstacle at position, or nullptr if none
+	
+	void setDark(bool dark) { isDark = dark; }
+	bool isLevelDark() const { return isDark; }
+	void updateLighting(int p1x, int p1y, bool p1Torch, int p2x, int p2y, bool p2Torch);
 };

@@ -3,6 +3,7 @@
 #include "LevelData.h"
 #include "Spring.h"
 #include "Obstacle.h"
+#include "Torch.h"
 #include <iostream>
 #include <cctype>
 #include <vector>
@@ -405,4 +406,59 @@ Obstacle* Level::getObstacleAt(int x, int y) {
         }
     }
     return nullptr;
+}
+
+void Level::updateLighting(int p1x, int p1y, bool p1Torch, int p2x, int p2y, bool p2Torch) {
+    if (!isDark) return;
+
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {//check if one of the players lits the cell
+            bool litByP1 = p1Torch && Torch::isLit(j, i, p1x, p1y);
+            bool litByP2 = p2Torch && Torch::isLit(j, i, p2x, p2y);
+
+            if (litByP1 || litByP2) {
+                gotoxy(j, i);
+                char c = map[i][j];
+                
+                //coloring
+                if (c == '!') {
+                    setTextColor(Color::LIGHTRED);
+                }
+                else if (c == '@') {
+                    setTextColor(Color::LIGHTRED);
+                }
+                else if (c == '#') {
+                    setTextColor(Color::LIGHTCYAN);
+                }
+                else if (c == 'K' || c == '/' || c == '\\') {
+                    setTextColor(Color::YELLOW);
+                }
+                else if (c == '?') {
+                    setTextColor(Color::CYAN);
+                }
+                else if (c == '1') {
+                    setTextColor(door1Open ? Color::GREEN : Color::RED);
+                }
+                else if (c == '2') {
+                    setTextColor(door2Open ? Color::GREEN : Color::RED);
+                }
+                else if (c == '3') {
+                    setTextColor(Color::GREEN);
+                }
+                else if (c == '*') {
+                    setTextColor(Color::LIGHTGREY);
+                }
+                else {
+                    setTextColor(Color::WHITE);
+                }
+
+                cout << c;
+            }
+            else {//if the cell dark it's a space
+                gotoxy(j, i);
+                cout << ' ';
+            }
+        }
+    }
+    setTextColor(Color::WHITE);
 }

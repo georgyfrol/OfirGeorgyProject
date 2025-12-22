@@ -133,6 +133,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Riddle.h" />
     <ClInclude Include="Spring.h" />
+    <ClInclude Include="Torch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bomb.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Riddle.cpp" />
     <ClCompile Include="Spring.cpp" />
+    <ClCompile Include="Torch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

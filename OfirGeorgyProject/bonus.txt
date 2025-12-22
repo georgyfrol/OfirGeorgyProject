@@ -1,1 +1,1 @@
-1) colors support
+1) colors support - added a toggle to a home menu to switch between color and non color modes

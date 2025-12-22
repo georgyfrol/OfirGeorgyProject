@@ -1,5 +1,6 @@
 ﻿#include "Game.h"
 #include "Player.h"
+#include "Torch.h"
 #include "io_utils.h"
 #include <conio.h>  // For _kbhit and _getch
 #include <windows.h> // For gotoxy and Sleep
@@ -125,6 +126,16 @@ void Game::runGame() {
         p2.draw();
         char p2Result = p2.move(level, &p1);
         p1.draw();
+
+        bool p1HasTorch = (p1.getInventory() == Torch::SYMBOL);
+        bool p2HasTorch = (p2.getInventory() == Torch::SYMBOL);
+
+         if (level.isLevelDark()) {
+            level.updateLighting(p1.getX(), p1.getY(), p1HasTorch, p2.getX(), p2.getY(), p2HasTorch);
+        }
+
+        p1.draw();
+        p2.draw();
 
         // Update spring compression for each spring and each player
         for (auto& spring : level.getSprings()) {
