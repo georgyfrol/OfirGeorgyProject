@@ -4,6 +4,7 @@
 #include "Riddle.h"
 #include "Spring.h"
 #include "Obstacle.h"
+#include "Color.h"
 
 const int HEIGHT = 25;
 const int WIDTH = 80;
@@ -62,5 +63,5 @@ public:
 	
 	void setDark(bool dark) { isDark = dark; }
 	bool isLevelDark() const { return isDark; }
-	void updateLighting(int p1x, int p1y, bool p1Torch, int p2x, int p2y, bool p2Torch);
+	void updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color, int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color);
 };

@@ -12,6 +12,25 @@
 
 using namespace std;
 
+static void setMapColor(char c) {
+    switch (c) {
+    case '!': setTextColor(Color::LIGHTRED); break;    // Torch
+    case '@': setTextColor(Color::LIGHTRED); break;    // Bomb
+    case '#': setTextColor(Color::LIGHTCYAN); break;   // Spring
+    case 'K': setTextColor(Color::YELLOW); break;      // Key
+    case '/':                                          // Open switch
+    case '\\': setTextColor(Color::YELLOW); break;     // Closed switch
+    case '?': setTextColor(Color::CYAN); break;        // Riddle
+    case '1': setTextColor(Color::LIGHTRED); break;    // Door 1
+    case '2': setTextColor(Color::LIGHTRED); break;    // Door 2
+    case '3': setTextColor(Color::GREEN); break;       // Door 3
+    case '*': setTextColor(Color::LIGHTGREY); break;   // Obsticle
+    case '$': setTextColor(Color::LIGHTGREEN); break;  // Player 1
+    case '&': setTextColor(Color::LIGHTMAGENTA); break;// Player 2
+    default:  setTextColor(Color::WHITE); break;       // Walls
+    }
+}
+
 void Level::init(int levelNum) {
     LevelData::load(levelNum, map);
 
@@ -59,17 +78,18 @@ void Level::init(int levelNum) {
 }
 
 void Level::printLevel() {
-    setTextColor(Color::WHITE); 
-
     for (int i = 0; i < HEIGHT; i++) {
-        gotoxy(0, i);
         for (int j = 0; j < WIDTH; j++) {
-            cout << map[i][j];
+            char c = map[i][j];
+            gotoxy(j, i);
+            setMapColor(c);
+            if (c == '1' && door1Open) setTextColor(Color::GREEN);
+            if (c == '2' && door2Open) setTextColor(Color::GREEN);
+
+            cout << c;
         }
     }
-    
-    // Draw doors with colors after printing the level
-    drawDoors();
+    setTextColor(Color::WHITE);
 }
 
 void Level::drawDoors() {
@@ -409,53 +429,41 @@ Obstacle* Level::getObstacleAt(int x, int y) {
     return nullptr;
 }
 
-void Level::updateLighting(int p1x, int p1y, bool p1Torch, int p2x, int p2y, bool p2Torch) {
+void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color,
+    int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color) {
     if (!isDark) return;
 
     for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {//check if one of the players lits the cell
+        for (int j = 0; j < WIDTH; j++) {
+
+            if (j == p1x && i == p1y) { // visibility of player 1
+                gotoxy(j, i);
+                setTextColor(p1Color);
+                cout << p1Sym;
+                continue;
+            }
+
+            if (j == p2x && i == p2y) {  // visibility of player 2
+                gotoxy(j, i);
+                setTextColor(p2Color);
+                cout << p2Sym;
+                continue;
+            }
+
+            char c = map[i][j];
             bool litByP1 = p1Torch && Torch::isLit(j, i, p1x, p1y);
             bool litByP2 = p2Torch && Torch::isLit(j, i, p2x, p2y);
 
-            if (litByP1 || litByP2) {
+            if (litByP1 || litByP2 || c == '!') {
                 gotoxy(j, i);
-                char c = map[i][j];
-                
-                //coloring
-                if (c == '!') {
-                    setTextColor(Color::LIGHTRED);
-                }
-                else if (c == '@') {
-                    setTextColor(Color::LIGHTRED);
-                }
-                else if (c == '#') {
-                    setTextColor(Color::LIGHTCYAN);
-                }
-                else if (c == 'K' || c == '/' || c == '\\') {
-                    setTextColor(Color::YELLOW);
-                }
-                else if (c == '?') {
-                    setTextColor(Color::CYAN);
-                }
-                else if (c == '1') {
-                    setTextColor(door1Open ? Color::GREEN : Color::RED);
-                }
-                else if (c == '2') {
-                    setTextColor(door2Open ? Color::GREEN : Color::RED);
-                }
-                else if (c == '3') {
-                    setTextColor(Color::GREEN);
-                }
-                else if (c == '*') {
-                    setTextColor(Color::LIGHTGREY);
-                }
-                else {
-                    setTextColor(Color::WHITE);
-                }
+                setMapColor(c);
+
+                if (c == '1' && door1Open) setTextColor(Color::GREEN);
+                if (c == '2' && door2Open) setTextColor(Color::GREEN);
 
                 cout << c;
             }
-            else {//if the cell dark it's a space
+            else {
                 gotoxy(j, i);
                 cout << ' ';
             }

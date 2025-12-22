@@ -52,7 +52,7 @@ void Game::loadNextLevel() {
 void Game::runGame() {
     gameActive = true;
     clear_screen();
-    
+
     // Initialize starting level
     currentLevelNum = 1;
     level.init(currentLevelNum);
@@ -64,32 +64,32 @@ void Game::runGame() {
     p1.draw();
     p2.draw();
 
+    int p1PrevX = -1, p1PrevY = -1;
+    int p2PrevX = -1, p2PrevY = -1;
+    bool p1PrevTorch = false;
+    bool p2PrevTorch = false;
+    bool forceUpdate = true; // To draw the first frame
+    
     while (gameActive) {
         if (_kbhit()) {
             char key = _getch();
             if (key == 27) { // ESC key
-                bool resume = pauseGame();
-                if (resume == false)
-                    gameActive = false;
+                if (!pauseGame()) gameActive = false;
+                // Force screen update after pause
+                forceUpdate = true;
             }
             else {
                 char lowKey = tolower(key);
-                int disposedX, disposedY; // Variables to capture the item's disposal location
+                int disposedX, disposedY;
 
                 // Disposal Logic
                 if (lowKey == 'e') {
                     char disposedItem = p1.dispose(level, disposedX, disposedY);
-                    if (disposedItem == '@') {
-                        // If Player 1 disposed a Bomb, add it to the active list
-                        activeBombs.emplace_back(disposedX, disposedY);
-                    }
+                    if (disposedItem == '@') activeBombs.emplace_back(disposedX, disposedY);
                 }
                 else if (lowKey == 'o') {
                     char disposedItem = p2.dispose(level, disposedX, disposedY);
-                    if (disposedItem == '@') {
-                        // If Player 2 disposed a Bomb, add it to the active list
-                        activeBombs.emplace_back(disposedX, disposedY);
-                    }
+                    if (disposedItem == '@') activeBombs.emplace_back(disposedX, disposedY);
                 }
                 else {
                     p1.setDirection(key);
@@ -101,43 +101,59 @@ void Game::runGame() {
         // Bomb Ticking Logic 
         for (auto it = activeBombs.begin(); it != activeBombs.end(); ) {
             if (it->advance(level)) {
-                // Bomb exploded, removing it from the list
                 it = activeBombs.erase(it);
+                forceUpdate = true; // Explosion changes map, need to update light
             }
             else {
                 ++it;
             }
         }
 
-        // Check for Door '2' switch state (Level 2 only)
-            if (level.checkSwitchesState()) {
+        // Switch logic
+        if (level.checkSwitchesState()) {
+            if (!level.isDoor2Open()) { // If door state changed
                 level.setDoor2Open(true);
+                level.drawDoors(); // Draw only if changed
             }
-            else {
+        }
+        else {
+            if (level.isDoor2Open()) {
                 level.setDoor2Open(false);
+                level.drawDoors();
             }
-        
-        // Redraw doors and Items with updated colors (before player movement)
-        level.drawDoors();
-        level.drawItems();
-        
-        // Move players and check for level transitions
-        char p1Result = p1.move(level);
-        p2.draw();
-        char p2Result = p2.move(level);
-        p1.draw();
-
-        //lighting
-        bool p1HasTorch = (p1.getInventory() == Torch::SYMBOL);
-        bool p2HasTorch = (p2.getInventory() == Torch::SYMBOL);
-        if (level.isLevelDark()) {
-            level.updateLighting(p1.getX(), p1.getY(), p1HasTorch, p2.getX(), p2.getY(), p2HasTorch);
         }
 
-        p1.draw();
-        p2.draw();
+        // Move players
+        char p1Result = p1.move(level);
+        char p2Result = p2.move(level);
 
-        // Update spring compression for each spring and each player
+        // Lighting logic
+        bool p1HasTorch = (p1.getInventory() == Torch::SYMBOL);
+        bool p2HasTorch = (p2.getInventory() == Torch::SYMBOL);
+
+        // Check if anything important for lighting has changed
+        bool stateChanged =
+            (p1.getX() != p1PrevX) || (p1.getY() != p1PrevY) ||
+            (p2.getX() != p2PrevX) || (p2.getY() != p2PrevY) ||
+            (p1HasTorch != p1PrevTorch) || (p2HasTorch != p2PrevTorch);
+
+        if (level.isLevelDark()) {
+            // Draw light only if something changed or it's the first frame
+            if (stateChanged || forceUpdate) {
+                level.updateLighting(p1.getX(), p1.getY(), p1HasTorch, p1.getSymbol(), p1.getColor(), p2.getX(), p2.getY(), p2HasTorch, p2.getSymbol(), p2.getColor());
+
+                p1PrevX = p1.getX(); p1PrevY = p1.getY();
+                p2PrevX = p2.getX(); p2PrevY = p2.getY();
+                p1PrevTorch = p1HasTorch; p2PrevTorch = p2HasTorch;
+                forceUpdate = false;
+            }
+        }
+        else {
+            p1.draw();
+            p2.draw();
+        }
+        
+        // Update springs
         for (auto& spring : level.getSprings()) {
             spring.updateCompression(p1, level);
             spring.updateCompression(p2, level);
@@ -145,20 +161,20 @@ void Game::runGame() {
 
         if (p1Result == '?') {
             handleRiddle(p1);
-            p1.draw(); p2.draw();
+            forceUpdate = true; // Screen was cleared after riddle, need to redraw
         }
-
         if (p2Result == '?') {
             handleRiddle(p2);
-            p1.draw(); p2.draw();
-        }
-        
-        // Handle Door '3' level transitions - immediate transition when any player touches it
-        if (p1Result == '3' || p2Result == '3') {
-            // Immediately transition to next level
-            loadNextLevel();
+            forceUpdate = true;
         }
 
+        if (p1Result == '3' || p2Result == '3') {
+            loadNextLevel();
+            // Reset state for new level
+            p1PrevX = -1; forceUpdate = true;
+        }
+
+        // Inventory drawing
         gotoxy(0, HEIGHT);
         setTextColor(Color::LIGHTGREEN);
         cout << "Player 1 inventory: ";
@@ -169,10 +185,10 @@ void Game::runGame() {
         cout << "Player 2 inventory: ";
         setTextColor(Color::WHITE);
         cout << (p2.getInventory() ? p2.getInventory() : ' ');
+
         Sleep(100);
     }
 }
-
 void Game::displayInstructions() {
     clear_screen();
     gotoxy(10, 3);  cout << "--- Instructions and Keys ---";

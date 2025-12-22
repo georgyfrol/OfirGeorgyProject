@@ -22,8 +22,11 @@ private:
     int prevDirX, prevDirY;
 
 public:
+
+    char getSymbol() const { return symbol; }
+    Color getColor() const { return color; }
     // STAY input flag for spring release detection (public for Spring access)
-   // bool stayPressedThisCycle;
+    // bool stayPressedThisCycle;
     void erase(Level& level);
     void init(int startX, int startY, char sym, Color c, char kU, char kD, char kL, char kR, char kS, char kE);
 

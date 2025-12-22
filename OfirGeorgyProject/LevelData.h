@@ -55,11 +55,11 @@ public:
             layout[6]  = "W  W  W                                                                  W  W  W";
             layout[7]  = "W  W  W                                                                  W  W  W";
             layout[8]  = "W  W  W                                                                  W  W  W";
-            layout[9]  = "W  W  W                              2222222                             W  W  W";
-            layout[10] = "W  W  W                 @            2     2                             W  W  W";
-            layout[11] = "W  W  W                              2  3  2             @               W  W  W";
-            layout[12] = "W  W  W                              2     2                             W  W  W";
-            layout[13] = "W  W  W                              2222222                             W  W  W";
+            layout[9]  = "W  W !W                              WWWWWWW                             W !W  W";
+            layout[10] = "W  W  W                 @            W     W                             W  W  W";
+            layout[11] = "W  W  W                              W  3  W             @               W  W  W";
+            layout[12] = "W  W  W                              W     W                             W  W  W";
+            layout[13] = "W  W  W                              WWWWWWW                             W  W  W";
             layout[14] = "W  W  W                                                                  W  W  W";
             layout[15] = "W  W  W                                                                  W  W  W";
             layout[16] = "W  W  W                                                                  W  W  W";
