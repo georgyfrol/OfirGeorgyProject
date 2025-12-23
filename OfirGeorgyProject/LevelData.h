@@ -113,7 +113,7 @@ public:
             }
         }
     }
-    static vector<Riddle> getRiddles(int levelNum) {
+    /*static vector<Riddle> getRiddles(int levelNum) {
         vector<Riddle> list;
 
         if (levelNum == 1) {
@@ -124,5 +124,5 @@ public:
         }
 
         return list;
-    }
+    }*/
 };

@@ -1,16 +1,27 @@
+#include <iostream>
+#include <cctype>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <fstream>
+#include <string>
 #include "Level.h"
 #include "io_utils.h"
 #include "LevelData.h"
 #include "Spring.h"
 #include "Obstacle.h"
 #include "Torch.h"
-#include <iostream>
-#include <cctype>
-#include <vector>
-#include <queue>
-#include <utility>
 
 using namespace std;
+
+string formatRiddleString(string text) {
+    size_t pos = 0;
+    while ((pos = text.find("\\n", pos)) != string::npos) {
+        text.replace(pos, 2, "\n");
+        pos += 1;
+    }
+    return text;
+}
 
 static void setMapColor(char c) {
     switch (c) {
@@ -31,22 +42,53 @@ static void setMapColor(char c) {
     }
 }
 
-void Level::init(int levelNum) {
+bool Level::init(int levelNum) {
     LevelData::load(levelNum, map);
 
     //Riddle initialization
     riddles.clear();
-    vector<Riddle> pendingRiddles = LevelData::getRiddles(levelNum);
+    vector<Riddle> fileRiddles;
+
+    ifstream file("riddles.txt");
+
+    // ERROR HANDLING
+    if (!file.is_open()) {
+        clear_screen();
+        setTextColor(Color::LIGHTRED);
+        cout << "CRITICAL ERROR: 'riddles.txt' file not found!" << endl;
+        cout << "Please create the file in the project directory." << endl;
+        setTextColor(Color::WHITE);
+        cout << "\nPress any key to return to menu...";
+        _getch();
+        return false;
+    }
+
+    string line, question, answer;
+    while (getline(file, line)) {
+        if (line.empty()) continue;
+        question = formatRiddleString(line); // formating \n
+
+        if (getline(file, answer)) {
+            fileRiddles.push_back(Riddle(question, answer));
+        }
+    }
+    file.close();
+    
     int currentRiddleIndex = 0;
 
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             if (map[y][x] == '?') {
-                   if (currentRiddleIndex < pendingRiddles.size()) {
-                    Riddle r = pendingRiddles[currentRiddleIndex];
+                // ties a '?' on the map with a next riddle from the file
+                if (currentRiddleIndex < fileRiddles.size()) {
+                    Riddle r = fileRiddles[currentRiddleIndex];
                     r.setPosition(x, y);
                     addRiddle(r);
                     currentRiddleIndex++;
+                }
+                else {
+                    // if not enough riddles in the file, remove '?' from map
+                    map[y][x] = ' ';
                 }
             }
         }
@@ -77,6 +119,8 @@ void Level::init(int levelNum) {
     
     // Detect and initialize obstacles from the map
     detectObstacles();
+
+    return true;
 }
 
 void Level::printLevel() {

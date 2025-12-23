@@ -23,7 +23,7 @@ class Level {
 
 public:
 	// initialize the hardcoded map
-	void init(int levelNum);
+	bool init(int levelNum); // returns false if loading failed
 
 	// Print the whole board (only called once at the start)
 	void printLevel();

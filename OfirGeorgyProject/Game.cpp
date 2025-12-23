@@ -16,7 +16,10 @@ void Game::loadNextLevel() {
     if (currentLevelNum == 3) {
         // Load Level 3 (End Screen)
         clear_screen();
-        level.init(3);
+        if (!level.init(3)) {
+            gameActive = false;
+            return;
+        }
         level.printLevel();
         
         // End game sequence
@@ -34,7 +37,10 @@ void Game::loadNextLevel() {
     char p2Inventory = p2.getInventory();
     
     // Initialize the new level
-    level.init(currentLevelNum);
+    if (!level.init(currentLevelNum)) {
+        gameActive = false;
+        return;
+    }
     level.printLevel();
     
     // Reset both players to starting positions on the new map
@@ -55,7 +61,7 @@ void Game::runGame() {
 
     // Initialize starting level
     currentLevelNum = 1;
-    level.init(currentLevelNum);
+    if (!level.init(currentLevelNum)) return;
     level.printLevel();
 
     p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
