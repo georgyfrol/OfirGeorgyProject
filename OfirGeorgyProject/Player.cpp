@@ -23,6 +23,7 @@ void Player::init(int startX, int startY, char sym, Color c, char kU, char kD, c
     springDirY = 0;
     prevDirX = 0;
     prevDirY = 0;
+    finished = false;
 
     
     //Using tolower function to always stay on lower case keys

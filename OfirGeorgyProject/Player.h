@@ -12,6 +12,7 @@ private:
     Color color;
     char inventory = 0;
     bool stayPressedThisCycle;
+    bool finished = false;
     
     // Spring effect fields
     int speed; // Default = 1, set to compressedLength on release
@@ -52,6 +53,9 @@ public:
 
     char getInventory() const { return inventory; }
     void setInventory(char item) { inventory = item; }
+
+    bool isFinished() const { return finished; }
+    void setFinished(bool f) { finished = f; }
     
     // Spring effect methods
     void setSpeed(int s) { speed = s; }

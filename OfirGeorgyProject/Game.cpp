@@ -130,12 +130,46 @@ void Game::runGame() {
         }
 
         // Move players
-        char p1Result = p1.move(level);
-        char p2Result = p2.move(level);
+        char p1Result = ' ';
+        if (!p1.isFinished()) {
+            p1Result = p1.move(level);
+            if (p1Result == '3') {
+                p1.setFinished(true);
+                p1.erase(level);            }
+            else if (p1Result == '?') {
+                handleRiddle(p1);
+                forceUpdate = true;
+            }
+        }
+        char p2Result = ' ';
+        if (!p2.isFinished()) {
+            p2Result = p2.move(level);
+            if (p2Result == '3') {
+                p2.setFinished(true);
+                p2.erase(level);
+            }
+            else if (p2Result == '?') {
+                handleRiddle(p2);
+                forceUpdate = true;
+            }
+        }
+        if (p1.isFinished() && p2.isFinished()) {
+            loadNextLevel();
+            p1PrevX = -1; forceUpdate = true; // Сброс для отрисовки нового уровня
+            continue; // Начинаем новый круг цикла сразу
+        }
 
         // Lighting logic
         bool p1HasTorch = (p1.getInventory() == Torch::SYMBOL);
         bool p2HasTorch = (p2.getInventory() == Torch::SYMBOL);
+
+        int drawP1x = p1.isFinished() ? -1 : p1.getX();
+        int drawP1y = p1.isFinished() ? -1 : p1.getY();
+        bool drawP1Torch = p1.isFinished() ? false : p1HasTorch;
+
+        int drawP2x = p2.isFinished() ? -1 : p2.getX();
+        int drawP2y = p2.isFinished() ? -1 : p2.getY();
+        bool drawP2Torch = p2.isFinished() ? false : p2HasTorch;
 
         // Check if anything important for lighting has changed
         bool stateChanged =
@@ -155,8 +189,8 @@ void Game::runGame() {
             }
         }
         else {
-            p1.draw();
-            p2.draw();
+            if (!p1.isFinished()) p1.draw();
+            if (!p2.isFinished()) p2.draw();
         }
         
         // Update springs
@@ -172,12 +206,6 @@ void Game::runGame() {
         if (p2Result == '?') {
             handleRiddle(p2);
             forceUpdate = true;
-        }
-
-        if (p1Result == '3' || p2Result == '3') {
-            loadNextLevel();
-            // Reset state for new level
-            p1PrevX = -1; forceUpdate = true;
         }
 
         // Inventory drawing
