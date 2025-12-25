@@ -22,6 +22,9 @@ private:
     // Track previous direction to detect direction changes
     int prevDirX, prevDirY;
 
+    int health = 100;
+    int score = 0;
+
 public:
 
     char getSymbol() const { return symbol; }
@@ -77,4 +80,28 @@ public:
     
     // Force calculation for obstacle pushing
     int getForce() const;  // Returns 1 normally, or speed if under spring effect
+
+    int getHealth() const { return health; }
+    int getScore() const { return score; }
+
+    void setHealth(int h) { health = h; }
+    void setScore(int s) { score = s; }
+
+    void reduceHealth(int amount) {
+        health -= amount;
+        if (health < 0) health = 0;
+    }
+
+    void addScore(int amount) {
+        score += amount;
+    }
+
+    void reduceScore(int amount) {
+        score -= amount;
+        if (score < 0) score = 0;
+    }
+    
+    void resetHealth() {
+        health = 100;
+    }
 };

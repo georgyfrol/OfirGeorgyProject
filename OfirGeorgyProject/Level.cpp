@@ -44,6 +44,7 @@ static void setMapColor(char c) {
 
 bool Level::init(int levelNum) {
     LevelData::load(levelNum, map);
+    door2BonusGiven = false;
 
     //Riddle initialization
     riddles.clear();

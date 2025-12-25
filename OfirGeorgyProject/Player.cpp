@@ -543,6 +543,7 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
                 if (level.tryUnlockDoor1()) {
                     // Door is now fully unlocked, remove it from map
                     level.setCharAt(next_x, next_y, ' ');
+                    addScore(50);
                 }
                 // Player stays near door (doesn't move)
                 dir_x = 0;

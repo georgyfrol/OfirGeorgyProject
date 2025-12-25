@@ -59,6 +59,11 @@ void Game::runGame() {
     gameActive = true;
     clear_screen();
 
+    p1.setHealth(100);
+    p1.setScore(0);
+    p2.setHealth(100);
+    p2.setScore(0);
+
     // Initialize starting level
     currentLevelNum = 1;
     if (!level.init(currentLevelNum)) return;
@@ -104,11 +109,19 @@ void Game::runGame() {
             }
         }
 
-        // Bomb Ticking Logic 
+        // Bomb ticking and damage logic 
         for (auto it = activeBombs.begin(); it != activeBombs.end(); ) {
             if (it->advance(level)) {
+                // Check distance to players
+                if (!p1.isFinished() && abs(p1.getX() - it->getX()) <= 2 && abs(p1.getY() - it->getY()) <= 2) {
+                    p1.reduceHealth(50); // Damage 50
+                }
+                if (!p2.isFinished() && abs(p2.getX() - it->getX()) <= 2 && abs(p2.getY() - it->getY()) <= 2) {
+                    p2.reduceHealth(50); // Damage 50
+                }
+
                 it = activeBombs.erase(it);
-                forceUpdate = true; // Explosion changes map, need to update light
+                forceUpdate = true;  // Explosion changes map, need to update light
             }
             else {
                 ++it;
@@ -120,6 +133,12 @@ void Game::runGame() {
             if (!level.isDoor2Open()) { // If door state changed
                 level.setDoor2Open(true);
                 level.drawDoors(); // Draw only if changed
+
+                if (!level.isDoor2BonusGiven()) { // bonus for opening door with switches might be given only once
+                    p1.addScore(75);
+                    p2.addScore(75);
+                    level.setDoor2BonusGiven(true);
+                }
             }
         }
         else {
@@ -153,10 +172,43 @@ void Game::runGame() {
                 forceUpdate = true;
             }
         }
+
+        if (p1.getHealth() == 0 || p2.getHealth() == 0) {
+            
+            if (p1.getHealth() == 0)
+                p1.reduceScore(100);
+            else
+                p2.reduceScore(100);
+
+            clear_screen(); //message
+            setTextColor(Color::LIGHTRED);
+            cout << "\n\n\n\t\tPLAYER DIED! RESTARTING LEVEL...";
+            cout << "\n\t\t-100 POINTS";
+            Sleep(2000);
+            setTextColor(Color::WHITE);
+
+            // stage restart
+            activeBombs.clear();
+            level.init(currentLevelNum); // map restart
+            level.printLevel();
+
+            // players restart
+            p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
+            p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
+            p1.resetHealth();
+            p2.resetHealth();
+
+            p1.draw(); p2.draw();
+            p1PrevX = -1; forceUpdate = true;
+            continue;
+        }
+
         if (p1.isFinished() && p2.isFinished()) {
+            p1.addScore(200);
+            p2.addScore(200);
             loadNextLevel();
-            p1PrevX = -1; forceUpdate = true; // Сброс для отрисовки нового уровня
-            continue; // Начинаем новый круг цикла сразу
+            p1PrevX = -1; forceUpdate = true;
+            continue;
         }
 
         // Lighting logic
@@ -211,14 +263,35 @@ void Game::runGame() {
         // Inventory drawing
         gotoxy(0, HEIGHT);
         setTextColor(Color::LIGHTGREEN);
-        cout << "Player 1 inventory: ";
+        cout << "P1: inventory:";
         setTextColor(Color::WHITE);
         cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        cout << "                                      ";
+        setTextColor(Color::LIGHTGREEN);
+        cout << " HP:";
+        setTextColor(Color::WHITE);
+        cout << p1.getHealth() << "% ";
+        setTextColor(Color::LIGHTGREEN);
+        gotoxy(23, HEIGHT);
+        cout << " Score:";
+        setTextColor(Color::WHITE);
+        cout << p1.getScore() << "  ";
+        cout << "  ";
+        //cout << "                  ";
+        gotoxy(47, HEIGHT);
         setTextColor(Color::LIGHTMAGENTA);
-        cout << "Player 2 inventory: ";
+        cout << "P2: inventory:";
         setTextColor(Color::WHITE);
         cout << (p2.getInventory() ? p2.getInventory() : ' ');
+        setTextColor(Color::LIGHTMAGENTA);
+        cout << " HP:";
+        setTextColor(Color::WHITE);
+        cout << p2.getHealth() << "% ";
+        setTextColor(Color::LIGHTMAGENTA);
+        gotoxy(70, HEIGHT);
+        cout << " Score:";
+        setTextColor(Color::WHITE);
+        cout << p2.getScore() << "  ";
+        cout << "  ";
 
         Sleep(100);
     }
@@ -350,7 +423,9 @@ void Game::handleRiddle(Player& p) {
     if (!r) return;
 
     clear_screen();
+    setTextColor(Color::CYAN);
     gotoxy(20, 8);  cout << "=== RIDDLE ===";
+    setTextColor(Color::WHITE);
     gotoxy(20, 10); cout << r->getQuestion();
     gotoxy(20, 15); cout << "Answer: ";
 
@@ -376,6 +451,8 @@ void Game::handleRiddle(Player& p) {
     if (r->checkAnswer(input)) {
         setTextColor(Color::GREEN);
         cout << "CORRECT!";
+        p.addScore(100);
+        p.stop();
         Sleep(1000);
 
         level.setCharAt(targetX, targetY, ' ');
@@ -386,7 +463,9 @@ void Game::handleRiddle(Player& p) {
     }
     else {
         setTextColor(Color::RED);
-        cout << "WRONG!";
+        cout << "WRONG! -10 HP";
+        p.reduceHealth(10);
+        p.reduceScore(10);
         Sleep(1000);
         p.stop();
     }

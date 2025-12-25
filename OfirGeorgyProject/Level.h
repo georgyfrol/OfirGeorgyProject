@@ -20,6 +20,7 @@ class Level {
 	vector<Spring> springs;  // All springs detected from the map
 	vector<Obstacle> obstacles;  // All obstacles detected from the map
 	bool isDark = false;
+	bool door2BonusGiven = false;
 
 public:
 	// initialize the hardcoded map
@@ -64,4 +65,6 @@ public:
 	void setDark(bool dark) { isDark = dark; }
 	bool isLevelDark() const { return isDark; }
 	void updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color, int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color);
+	bool isDoor2BonusGiven() const { return door2BonusGiven; }
+	void setDoor2BonusGiven(bool val) { door2BonusGiven = val; }
 };
