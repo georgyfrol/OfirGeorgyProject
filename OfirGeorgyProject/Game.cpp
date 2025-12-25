@@ -72,7 +72,7 @@ void Game::loadNextLevel() {
     level.printLevel();
     
     // Reset both players to starting positions on the new map
-    p1.init(5, 5, '$', Color::CYAN, 'w', 'x', 'a', 'd', 's', 'e');
+    p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
     
     // Restore inventory after reset
@@ -97,7 +97,7 @@ void Game::runGame() {
     if (!level.init(currentLevelNum)) return;
     level.printLevel();
 
-    p1.init(5, 5, '$', Color::CYAN, 'w', 'x', 'a', 'd', 's', 'e');
+    p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
 
     p1.draw();
@@ -221,7 +221,7 @@ void Game::runGame() {
             level.printLevel();
 
             // players restart
-            p1.init(5, 5, '$', Color::CYAN, 'w', 'x', 'a', 'd', 's', 'e');
+            p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
             p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
             p1.resetHealth();
             p2.resetHealth();
@@ -290,17 +290,17 @@ void Game::runGame() {
 
         // Inventory drawing
         gotoxy(0, HEIGHT);
-        setTextColor(Color::CYAN);
+        setTextColor(Color::LIGHTCYAN);
         cout << "P1: Item:";
         setTextColor(Color::WHITE);
         cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        setTextColor(Color::CYAN);
+        setTextColor(Color::LIGHTCYAN);
         cout << " HP:";
         setTextColor(Color::WHITE);
         printHealthBarColored(p1.getHealth());
         //cout << getHealthBar(p1.getHealth());
         //cout << p1.getHealth() << "% ";
-        setTextColor(Color::CYAN);
+        setTextColor(Color::LIGHTCYAN);
         gotoxy(26, HEIGHT);
         cout << " Score:";
         setTextColor(Color::YELLOW);
@@ -423,7 +423,7 @@ bool Game::pauseGame() {
                 p2.draw();
 
                 gotoxy(0, HEIGHT);
-                setTextColor(Color::CYAN);
+                setTextColor(Color::LIGHTCYAN);
                 cout << "Player 1 inventory: ";
                 setTextColor(Color::WHITE);
                 cout << (p1.getInventory() ? p1.getInventory() : ' ');
