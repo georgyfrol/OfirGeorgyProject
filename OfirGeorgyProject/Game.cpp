@@ -109,7 +109,10 @@ void Game::runGame() {
     bool p2PrevTorch = false;
     bool forceUpdate = true; // To draw the first frame
     
+    string displayMessage = "";
+    int messageTimer = 0;
     while (gameActive) {
+        string frameMessage = "";
         if (_kbhit()) {
             char key = _getch();
             if (key == 27) { // ESC key
@@ -167,19 +170,23 @@ void Game::runGame() {
                     p2.addScore(75);
                     level.setDoor2BonusGiven(true);
                 }
+                displayMessage = "Door Unlocked";
+                messageTimer = 30;
             }
         }
         else {
             if (level.isDoor2Open()) {
                 level.setDoor2Open(false);
                 level.drawDoors();
+                displayMessage = "Door Closed";
+                messageTimer = 30;
             }
         }
 
         // Move players
         char p1Result = ' ';
         if (!p1.isFinished()) {
-            p1Result = p1.move(level);
+            p1Result = p1.move(level, frameMessage);
             if (p1Result == '3') {
                 p1.setFinished(true);
                 p1.erase(level);            }
@@ -190,7 +197,7 @@ void Game::runGame() {
         }
         char p2Result = ' ';
         if (!p2.isFinished()) {
-            p2Result = p2.move(level);
+            p2Result = p2.move(level, frameMessage);
             if (p2Result == '3') {
                 p2.setFinished(true);
                 p2.erase(level);
@@ -200,7 +207,10 @@ void Game::runGame() {
                 forceUpdate = true;
             }
         }
-
+        if (!frameMessage.empty()) {
+            displayMessage = frameMessage;
+            messageTimer = 30;
+        }
         if (p1.getHealth() == 0 || p2.getHealth() == 0) {
             
             if (p1.getHealth() == 0)
@@ -288,7 +298,17 @@ void Game::runGame() {
             forceUpdate = true;
         }
 
-        // Inventory drawing
+        gotoxy(0, HEIGHT + 1);
+        if (messageTimer > 0){
+            setTextColor(Color::YELLOW);
+            cout << "INFO: " << displayMessage << "                                    ";
+            messageTimer--;
+        }
+        else 
+            cout << "                                                        ";
+        setTextColor(Color::WHITE);
+
+        // HUD drawing
         gotoxy(0, HEIGHT);
         setTextColor(Color::LIGHTCYAN);
         cout << "P1: Item:";
@@ -298,8 +318,6 @@ void Game::runGame() {
         cout << " HP:";
         setTextColor(Color::WHITE);
         printHealthBarColored(p1.getHealth());
-        //cout << getHealthBar(p1.getHealth());
-        //cout << p1.getHealth() << "% ";
         setTextColor(Color::LIGHTCYAN);
         gotoxy(26, HEIGHT);
         cout << " Score:";
@@ -315,8 +333,6 @@ void Game::runGame() {
         cout << " HP:";
         setTextColor(Color::WHITE);
         printHealthBarColored(p2.getHealth());
-        //cout << getHealthBar(p2.getHealth());
-        //cout << p2.getHealth() << "% ";
         setTextColor(Color::LIGHTMAGENTA);
         gotoxy(70, HEIGHT);
         cout << " Score:";
@@ -498,8 +514,8 @@ void Game::handleRiddle(Player& p) {
         cout << "WRONG! -10 HP -10 Points";
         p.reduceHealth(10);
         p.reduceScore(10);
-        Sleep(1000);
         p.stop();
+        Sleep(1000);
     }
 
     setTextColor(Color::WHITE);

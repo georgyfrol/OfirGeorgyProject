@@ -67,4 +67,5 @@ public:
 	void updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color, int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color);
 	bool isDoor2BonusGiven() const { return door2BonusGiven; }
 	void setDoor2BonusGiven(bool val) { door2BonusGiven = val; }
+	int getDoor1KeysRequired() const { return door1KeysRequired; }
 };

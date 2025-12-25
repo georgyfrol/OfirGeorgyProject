@@ -9,8 +9,6 @@
 #include <string>
 
 
-using namespace std;
-
 string getHealthBar(int health);
 void printHealthBarColored(int health);
 

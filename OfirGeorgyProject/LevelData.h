@@ -19,7 +19,7 @@ public:
         
         case 1:
             layout[0]  = "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW";
-            layout[1]  = "W        ?                          W                           ?              W";
+            layout[1]  = "W                  ?                W                           ?              W";
             layout[2]  = "W  WWWWWWWWWWWW  WWWWWWWWWWWWWWWWW  W  WWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWW  W";
             layout[3]  = "W  W          W  W               W  W  W                  W  W  @@@         W  W";
             layout[4]  = "W  W  WWWWWW  W  W  WWWWWWWWWWW  W  W  W  WWWWWWWWWWWWWW  W  W  WWWWWW      W  W";

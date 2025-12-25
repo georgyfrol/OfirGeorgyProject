@@ -146,7 +146,7 @@ void Player::draw() {
     setTextColor(WHITE);
 }
 
-char Player::move(Level& level, Player* otherPlayer) { //players' movments with wrap-around
+char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //players' movments with wrap-around
                                   //HEIGHT and WIDTH are from Level.h 
     
     // Handle spring acceleration effect
@@ -255,6 +255,7 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
                     springDirY = 0;
                     dir_x = 0;
                     dir_y = 0;
+                    msg = "Door Locked. Requred " + to_string(level.getDoor1KeysRequired()) + " keys to open.";
                     return '1'; // Return door collision code
                 }
             }
@@ -544,7 +545,10 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
                     // Door is now fully unlocked, remove it from map
                     level.setCharAt(next_x, next_y, ' ');
                     addScore(50);
+                    msg = "Door Open";
                 }
+                else
+                    msg = "Key used, requred " + to_string(level.getDoor1KeysRequired()) + " more keys to open";
                 // Player stays near door (doesn't move)
                 dir_x = 0;
                 dir_y = 0;
@@ -554,6 +558,7 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
                 // No key, block movement
                 dir_x = 0;
                 dir_y = 0;
+                msg = "Door locked, requred " + to_string(level.getDoor1KeysRequired()) + " keys to open";
                 return ' ';
             }
         }
@@ -571,6 +576,7 @@ char Player::move(Level& level, Player* otherPlayer) { //players' movments with 
         }
         else {
             // Door is locked, block movement
+            msg = "Door locked, turn all switches to ON position.";
             dir_x = 0;
             dir_y = 0;
             return ' ';

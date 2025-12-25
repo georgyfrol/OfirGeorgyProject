@@ -39,7 +39,7 @@ public:
 
     void setDirection(char key);
 
-    char move(Level& level, Player* otherPlayer = nullptr);
+    char move(Level& level, std::string& msg, Player* otherPlayer = nullptr);
 
     void setPosition(int newX, int newY) {
         x = newX;
