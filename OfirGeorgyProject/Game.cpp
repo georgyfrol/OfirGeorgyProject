@@ -7,6 +7,34 @@
 #include <string> 
 #include <cstdlib>  // For system("cls")
 
+string getHealthBar(int health) {
+    string bar = "[";
+    int hashes = health / 10;
+
+    for (int i = 0; i < 10; i++) {
+        if (i < hashes) bar += "#";
+        else bar += ".";
+    }
+    bar += "]";
+    return bar;
+}
+void printHealthBarColored(int health) {
+    Color barColor;
+    if (health > 70) barColor = Color::GREEN;
+    else if (health > 20) barColor = Color::YELLOW;
+    else barColor = Color::RED;
+
+    setTextColor(Color::WHITE); cout << "[";
+    setTextColor(barColor);
+
+    int hashes = health / 10;
+    for (int i = 0; i < 10; i++) {
+        if (i < hashes) cout << "#";
+        else cout << ".";
+    }
+
+    setTextColor(Color::WHITE); cout << "]";
+}
 
 void Game::loadNextLevel() {
     // Increment to next level number
@@ -44,7 +72,7 @@ void Game::loadNextLevel() {
     level.printLevel();
     
     // Reset both players to starting positions on the new map
-    p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
+    p1.init(5, 5, '$', Color::CYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
     
     // Restore inventory after reset
@@ -69,7 +97,7 @@ void Game::runGame() {
     if (!level.init(currentLevelNum)) return;
     level.printLevel();
 
-    p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
+    p1.init(5, 5, '$', Color::CYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
 
     p1.draw();
@@ -193,7 +221,7 @@ void Game::runGame() {
             level.printLevel();
 
             // players restart
-            p1.init(5, 5, '$', Color::LIGHTGREEN, 'w', 'x', 'a', 'd', 's', 'e');
+            p1.init(5, 5, '$', Color::CYAN, 'w', 'x', 'a', 'd', 's', 'e');
             p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
             p1.resetHealth();
             p2.resetHealth();
@@ -262,37 +290,41 @@ void Game::runGame() {
 
         // Inventory drawing
         gotoxy(0, HEIGHT);
-        setTextColor(Color::LIGHTGREEN);
-        cout << "P1: inventory:";
+        setTextColor(Color::CYAN);
+        cout << "P1: Item:";
         setTextColor(Color::WHITE);
         cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        setTextColor(Color::LIGHTGREEN);
+        setTextColor(Color::CYAN);
         cout << " HP:";
         setTextColor(Color::WHITE);
-        cout << p1.getHealth() << "% ";
-        setTextColor(Color::LIGHTGREEN);
-        gotoxy(23, HEIGHT);
+        printHealthBarColored(p1.getHealth());
+        //cout << getHealthBar(p1.getHealth());
+        //cout << p1.getHealth() << "% ";
+        setTextColor(Color::CYAN);
+        gotoxy(26, HEIGHT);
         cout << " Score:";
-        setTextColor(Color::WHITE);
+        setTextColor(Color::YELLOW);
         cout << p1.getScore() << "  ";
         cout << "  ";
-        //cout << "                  ";
-        gotoxy(47, HEIGHT);
+        gotoxy(44, HEIGHT);
         setTextColor(Color::LIGHTMAGENTA);
-        cout << "P2: inventory:";
+        cout << "P2: Item:";
         setTextColor(Color::WHITE);
         cout << (p2.getInventory() ? p2.getInventory() : ' ');
         setTextColor(Color::LIGHTMAGENTA);
         cout << " HP:";
         setTextColor(Color::WHITE);
-        cout << p2.getHealth() << "% ";
+        printHealthBarColored(p2.getHealth());
+        //cout << getHealthBar(p2.getHealth());
+        //cout << p2.getHealth() << "% ";
         setTextColor(Color::LIGHTMAGENTA);
         gotoxy(70, HEIGHT);
         cout << " Score:";
-        setTextColor(Color::WHITE);
+        setTextColor(Color::YELLOW);
         cout << p2.getScore() << "  ";
         cout << "  ";
 
+        setTextColor(Color::WHITE);
         Sleep(100);
     }
 }
@@ -391,7 +423,7 @@ bool Game::pauseGame() {
                 p2.draw();
 
                 gotoxy(0, HEIGHT);
-                setTextColor(Color::LIGHTGREEN);
+                setTextColor(Color::CYAN);
                 cout << "Player 1 inventory: ";
                 setTextColor(Color::WHITE);
                 cout << (p1.getInventory() ? p1.getInventory() : ' ');
@@ -450,7 +482,7 @@ void Game::handleRiddle(Player& p) {
     gotoxy(20, 17);
     if (r->checkAnswer(input)) {
         setTextColor(Color::GREEN);
-        cout << "CORRECT!";
+        cout << "CORRECT! +100 Points";
         p.addScore(100);
         p.stop();
         Sleep(1000);
@@ -463,7 +495,7 @@ void Game::handleRiddle(Player& p) {
     }
     else {
         setTextColor(Color::RED);
-        cout << "WRONG! -10 HP";
+        cout << "WRONG! -10 HP -10 Points";
         p.reduceHealth(10);
         p.reduceScore(10);
         Sleep(1000);

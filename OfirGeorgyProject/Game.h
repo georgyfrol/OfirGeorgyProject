@@ -6,12 +6,15 @@
 #include "Bomb.h"
 #include "Spring.h"
 #include <vector>
+#include <string>
 
 
 using namespace std;
 
-// Game Class (Handles Menu and Main Loop)
+string getHealthBar(int health);
+void printHealthBarColored(int health);
 
+// Game Class (Handles Menu and Main Loop)
 class Game {
 private:
     bool isRunning = true;
