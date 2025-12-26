@@ -21,6 +21,8 @@ class Level {
 	vector<Obstacle> obstacles;  // All obstacles detected from the map
 	bool isDark = false;
 	bool door2BonusGiven = false;
+	int legendX = -1;  // X coordinate of legend area (top-left corner marked by 'L')
+	int legendY = -1;  // Y coordinate of legend area (top-left corner marked by 'L')
 
 public:
 	// initialize the hardcoded map
@@ -68,4 +70,8 @@ public:
 	bool isDoor2BonusGiven() const { return door2BonusGiven; }
 	void setDoor2BonusGiven(bool val) { door2BonusGiven = val; }
 	int getDoor1KeysRequired() const { return door1KeysRequired; }
+	
+	// Legend position accessors
+	int getLegendX() const { return legendX; }
+	int getLegendY() const { return legendY; }
 };

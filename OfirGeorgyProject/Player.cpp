@@ -184,20 +184,26 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
                     // Calculate total force
                     int totalForce = getForce();
                     
-                    // Check if other player is adjacent and moving in same direction
+                    // Check if other player is also pushing the same obstacle
                     if (otherPlayer != nullptr) {
                         int otherX = otherPlayer->getX();
                         int otherY = otherPlayer->getY();
                         int otherDirX = otherPlayer->getDirX();
                         int otherDirY = otherPlayer->getDirY();
                         
-                        // Check if other player is adjacent (directly adjacent, not diagonal)
-                        bool isAdjacent = (abs(otherX - x) + abs(otherY - y) == 1);
+                        // Check if other player is adjacent to ANY cell of the obstacle
+                        bool isAdjacentToObstacle = false;
+                        for (const ObstacleCell& cell : obstacle->getCells()) {
+                            if (abs(otherX - cell.x) + abs(otherY - cell.y) == 1) {
+                                isAdjacentToObstacle = true;
+                                break;
+                            }
+                        }
                         
                         // Check if other player is moving in same direction
                         bool sameDirection = (otherDirX == springDirX && otherDirY == springDirY);
                         
-                        if (isAdjacent && sameDirection) {
+                        if (isAdjacentToObstacle && sameDirection) {
                             totalForce += otherPlayer->getForce();
                         }
                     }
@@ -337,20 +343,26 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
                     // Calculate total force (for sideways, use normal force = 1)
                     int totalForce = 1;  // Sideways movement is always at normal speed
                     
-                    // Check if other player is adjacent and moving in same sideways direction
+                    // Check if other player is also pushing the same obstacle
                     if (otherPlayer != nullptr) {
                         int otherX = otherPlayer->getX();
                         int otherY = otherPlayer->getY();
                         int otherDirX = otherPlayer->getDirX();
                         int otherDirY = otherPlayer->getDirY();
                         
-                        // Check if other player is adjacent (directly adjacent, not diagonal)
-                        bool isAdjacent = (abs(otherX - x) + abs(otherY - y) == 1);
+                        // Check if other player is adjacent to ANY cell of the obstacle
+                        bool isAdjacentToObstacle = false;
+                        for (const ObstacleCell& cell : obstacle->getCells()) {
+                            if (abs(otherX - cell.x) + abs(otherY - cell.y) == 1) {
+                                isAdjacentToObstacle = true;
+                                break;
+                            }
+                        }
                         
                         // Check if other player is moving in same sideways direction
                         bool sameDirection = (otherDirX == sidewaysX && otherDirY == sidewaysY);
                         
-                        if (isAdjacent && sameDirection) {
+                        if (isAdjacentToObstacle && sameDirection) {
                             totalForce += 1;  // Other player's sideways force is also 1
                         }
                     }
@@ -470,20 +482,26 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
             // Calculate total force
             int totalForce = getForce();
             
-            // Check if other player is adjacent and moving in same direction
+            // Check if other player is also pushing the same obstacle
             if (otherPlayer != nullptr) {
                 int otherX = otherPlayer->getX();
                 int otherY = otherPlayer->getY();
                 int otherDirX = otherPlayer->getDirX();
                 int otherDirY = otherPlayer->getDirY();
                 
-                // Check if other player is adjacent (directly adjacent, not diagonal)
-                bool isAdjacent = (abs(otherX - x) + abs(otherY - y) == 1);
+                // Check if other player is adjacent to ANY cell of the obstacle
+                bool isAdjacentToObstacle = false;
+                for (const ObstacleCell& cell : obstacle->getCells()) {
+                    if (abs(otherX - cell.x) + abs(otherY - cell.y) == 1) {
+                        isAdjacentToObstacle = true;
+                        break;
+                    }
+                }
                 
                 // Check if other player is moving in same direction
                 bool sameDirection = (otherDirX == dir_x && otherDirY == dir_y);
                 
-                if (isAdjacent && sameDirection) {
+                if (isAdjacentToObstacle && sameDirection) {
                     totalForce += otherPlayer->getForce();
                 }
             }

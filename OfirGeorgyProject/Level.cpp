@@ -43,7 +43,7 @@ static void setMapColor(char c) {
 }
 
 bool Level::init(int levelNum) {
-    LevelData::load(levelNum, map);
+    LevelData::load(levelNum, map, legendX, legendY);
     door2BonusGiven = false;
 
     //Riddle initialization
@@ -107,6 +107,18 @@ bool Level::init(int levelNum) {
         door1Open = true;
         door2Open = false;  // Door 2 starts closed, requires switches
         setDark(true);
+    }
+    else if (levelNum == 3) {
+        door1KeysRequired = 0;
+        door1Open = true;
+        door2Open = true;
+        setDark(false);
+    }
+    else if (levelNum == 4) {
+        door1KeysRequired = 0;
+        door1Open = true;
+        door2Open = true;
+        setDark(false);
     }
     else {
         door1KeysRequired = 0;
@@ -469,6 +481,12 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
 
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
+            // Skip legend area completely - don't touch it during lighting updates
+            if (legendX >= 0 && legendY >= 0) {
+                if (j >= legendX && j < legendX + 20 && i >= legendY && i < legendY + 3) {
+                    continue;  // Don't draw anything in legend area
+                }
+            }
 
             if (j == p1x && i == p1y) { // visibility of player 1
                 gotoxy(j, i);
