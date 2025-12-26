@@ -24,14 +24,14 @@ private:
     std::vector<Bomb> activeBombs;
     // Game Logic
 
-    void runGame();
+    bool runGame();  // Returns false on fatal error
     void displayInstructions();
     void displayMenu();
     bool pauseGame();
-    void loadNextLevel();
+    bool loadNextLevel();  // Returns false on fatal error
     void handleRiddle(Player& p);
 
 public:
     // Main execution loop for the application
-    void run();
+    int run();  // Returns 0 on success, 1 on fatal error
 };

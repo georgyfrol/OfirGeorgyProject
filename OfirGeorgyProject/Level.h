@@ -70,8 +70,6 @@ public:
 	bool isDoor2BonusGiven() const { return door2BonusGiven; }
 	void setDoor2BonusGiven(bool val) { door2BonusGiven = val; }
 	int getDoor1KeysRequired() const { return door1KeysRequired; }
-	
-	// Legend position accessors
 	int getLegendX() const { return legendX; }
 	int getLegendY() const { return legendY; }
 };

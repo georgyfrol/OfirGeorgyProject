@@ -9,7 +9,7 @@
 
 class LevelData {
 public:
-    static void load(int levelNum, char map[HEIGHT][WIDTH + 1], int& legendX, int& legendY) {
+    static bool load(int levelNum, char map[HEIGHT][WIDTH + 1], int& legendX, int& legendY) {
         // Initialize map with spaces
         for (int i = 0; i < HEIGHT; i++) {
             for (int j = 0; j < WIDTH; j++) {
@@ -37,8 +37,15 @@ public:
             filename = "adv-world_04.screen";
         }
         else {
-            // Invalid level number, use empty map
-            return;
+            // Invalid level number
+            clear_screen();
+            setTextColor(Color::LIGHTRED);
+            std::cout << "ERROR: Invalid level number: " << levelNum << std::endl;
+            setTextColor(Color::WHITE);
+            std::cout << "\nPress any key to exit...";
+            char ch = _getch();
+            (void)ch;
+            return false;
         }
 
         // Try to open the file
@@ -50,17 +57,17 @@ public:
             file.open(filename);
         }
 
-        // If still not found, show error and use empty map
+        // If still not found, show error and return failure
         if (!file.is_open()) {
             clear_screen();
             setTextColor(Color::LIGHTRED);
             std::cout << "ERROR: Could not open map file: " << filename << std::endl;
             std::cout << "Please ensure the file exists in the project directory." << std::endl;
             setTextColor(Color::WHITE);
-            std::cout << "\nPress any key to continue...";
-            char ch = _getch();  // Wait for user input
-            (void)ch;  // Suppress unused variable warning
-            return;
+            std::cout << "\nPress any key to exit...";
+            char ch = _getch();
+            (void)ch;
+            return false;
         }
 
         // Read file line by line
@@ -89,6 +96,7 @@ public:
         }
 
         file.close();
+        return true;
     }
     /*static vector<Riddle> getRiddles(int levelNum) {
         vector<Riddle> list;

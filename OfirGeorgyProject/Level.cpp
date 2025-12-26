@@ -43,7 +43,9 @@ static void setMapColor(char c) {
 }
 
 bool Level::init(int levelNum) {
-    LevelData::load(levelNum, map, legendX, legendY);
+    if (!LevelData::load(levelNum, map, legendX, legendY)) {
+        return false;  // Map loading failed
+    }
     door2BonusGiven = false;
 
     //Riddle initialization
@@ -56,12 +58,12 @@ bool Level::init(int levelNum) {
     if (!file.is_open()) {
         clear_screen();
         setTextColor(Color::LIGHTRED);
-        cout << "CRITICAL ERROR: 'riddles.txt' file not found!" << endl;
+        cout << "ERROR: 'riddles.txt' file not found!" << endl;
         cout << "Please create the file in the project directory." << endl;
         setTextColor(Color::WHITE);
-        cout << "\nPress any key to return to menu...";
+        cout << "\nPress any key to exit...";
         _getch();
-        return false;
+        return false;  // Return failure to caller
     }
 
     string line, question, answer;
@@ -481,12 +483,6 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
 
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
-            // Skip legend area completely - don't touch it during lighting updates
-            if (legendX >= 0 && legendY >= 0) {
-                if (j >= legendX && j < legendX + 20 && i >= legendY && i < legendY + 3) {
-                    continue;  // Don't draw anything in legend area
-                }
-            }
 
             if (j == p1x && i == p1y) { // visibility of player 1
                 gotoxy(j, i);

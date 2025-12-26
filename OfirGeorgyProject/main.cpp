@@ -3,7 +3,6 @@
 int main() {
     // Initializes the Game object and calls the main loop
     Game game;
-    game.run();
-    return 0;
-
+    int result = game.run();
+    return result;  // Return 0 on success, 1 on fatal error
 }

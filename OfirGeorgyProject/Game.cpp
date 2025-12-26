@@ -36,27 +36,36 @@ void printHealthBarColored(int health) {
     setTextColor(Color::WHITE); cout << "]";
 }
 
-void Game::loadNextLevel() {
+bool Game::loadNextLevel() {
     // Increment to next level number
     currentLevelNum++;
     
-    // Check if we've reached the end screen (Level 4)
+    // Check if we've reached level 4 (final level)
     if (currentLevelNum == 4) {
-        // Load Level 4 (End Screen)
+        // Load Level 4
         clear_screen();
         if (!level.init(4)) {
-            gameActive = false;
-            return;
+            return false;  // Return error to exit from main
         }
         level.printLevel();
         
-        // End game sequence
-        Sleep(2000);
+        // Reset both players to starting positions
+        char p1Inventory = p1.getInventory();
+        char p2Inventory = p2.getInventory();
+        p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
+        p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
+        p1.setInventory(p1Inventory);
+        p2.setInventory(p2Inventory);
+        p1.draw();
+        p2.draw();
+        
+        // Wait 5 seconds then return to main menu
+        Sleep(5000);
         gameActive = false;
-        return;
+        return true;
     }
     
-    // Load next challenge level (Level 2)
+    // Load next level (Level 2 or 3)
     clear_screen();
     activeBombs.clear();  // Clear bombs from previous level
     
@@ -66,64 +75,9 @@ void Game::loadNextLevel() {
     
     // Initialize the new level
     if (!level.init(currentLevelNum)) {
-        gameActive = false;
-        return;
+        return false;  // Return error to exit from main
     }
     level.printLevel();
-    
-    // Draw legend after level is printed
-    int legendX = level.getLegendX();
-    int legendY = level.getLegendY();
-    if (legendX >= 0 && legendY >= 0) {
-        // Clear legend area (3 lines, 20 chars wide)
-        for (int i = 0; i < 3; i++) {
-            gotoxy(legendX, legendY + i);
-            for (int j = 0; j < 20; j++) {
-                cout << ' ';
-            }
-        }
-        
-        // Draw initial legend
-        gotoxy(legendX, legendY);
-        setTextColor(Color::LIGHTCYAN);
-        cout << "P1 Item:";
-        setTextColor(Color::WHITE);
-        cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        setTextColor(Color::LIGHTCYAN);
-        cout << " HP:";
-        setTextColor(Color::WHITE);
-        int health = p1.getHealth();
-        if (health < 10) cout << "  " << health;
-        else if (health < 100) cout << " " << health;
-        else cout << health;
-        
-        gotoxy(legendX, legendY + 1);
-        setTextColor(Color::YELLOW);
-        cout << "Score:";
-        setTextColor(Color::WHITE);
-        int totalScore = p1.getScore() + p2.getScore();
-        if (totalScore < 10) cout << "     " << totalScore;
-        else if (totalScore < 100) cout << "    " << totalScore;
-        else if (totalScore < 1000) cout << "   " << totalScore;
-        else if (totalScore < 10000) cout << "  " << totalScore;
-        else if (totalScore < 100000) cout << " " << totalScore;
-        else cout << totalScore;
-        
-        gotoxy(legendX, legendY + 2);
-        setTextColor(Color::LIGHTMAGENTA);
-        cout << "P2 Item:";
-        setTextColor(Color::WHITE);
-        cout << (p2.getInventory() ? p2.getInventory() : ' ');
-        setTextColor(Color::LIGHTMAGENTA);
-        cout << " HP:";
-        setTextColor(Color::WHITE);
-        health = p2.getHealth();
-        if (health < 10) cout << "  " << health;
-        else if (health < 100) cout << " " << health;
-        else cout << health;
-        
-        setTextColor(Color::WHITE);
-    }
     
     // Reset both players to starting positions on the new map
     p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
@@ -135,9 +89,10 @@ void Game::loadNextLevel() {
     
     p1.draw();
     p2.draw();
+    return true;  // Success
 }
 
-void Game::runGame() {
+bool Game::runGame() {
     gameActive = true;
     clear_screen();
 
@@ -148,62 +103,10 @@ void Game::runGame() {
 
     // Initialize starting level
     currentLevelNum = 1;
-    if (!level.init(currentLevelNum)) return;
-    level.printLevel();
-    
-    // Draw legend after level is printed
-    int legendX = level.getLegendX();
-    int legendY = level.getLegendY();
-    if (legendX >= 0 && legendY >= 0) {
-        // Clear legend area (3 lines, 20 chars wide)
-        for (int i = 0; i < 3; i++) {
-            gotoxy(legendX, legendY + i);
-            for (int j = 0; j < 20; j++) {
-                cout << ' ';
-            }
-        }
-        
-        // Draw initial legend
-        gotoxy(legendX, legendY);
-        setTextColor(Color::LIGHTCYAN);
-        cout << "P1 Item:";
-        setTextColor(Color::WHITE);
-        cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        setTextColor(Color::LIGHTCYAN);
-        cout << " HP:";
-        setTextColor(Color::WHITE);
-        int health = p1.getHealth();
-        if (health < 10) cout << "  " << health;
-        else if (health < 100) cout << " " << health;
-        else cout << health;
-        
-        gotoxy(legendX, legendY + 1);
-        setTextColor(Color::YELLOW);
-        cout << "Score:";
-        setTextColor(Color::WHITE);
-        int totalScore = p1.getScore() + p2.getScore();
-        if (totalScore < 10) cout << "     " << totalScore;
-        else if (totalScore < 100) cout << "    " << totalScore;
-        else if (totalScore < 1000) cout << "   " << totalScore;
-        else if (totalScore < 10000) cout << "  " << totalScore;
-        else if (totalScore < 100000) cout << " " << totalScore;
-        else cout << totalScore;
-        
-        gotoxy(legendX, legendY + 2);
-        setTextColor(Color::LIGHTMAGENTA);
-        cout << "P2 Item:";
-        setTextColor(Color::WHITE);
-        cout << (p2.getInventory() ? p2.getInventory() : ' ');
-        setTextColor(Color::LIGHTMAGENTA);
-        cout << " HP:";
-        setTextColor(Color::WHITE);
-        health = p2.getHealth();
-        if (health < 10) cout << "  " << health;
-        else if (health < 100) cout << " " << health;
-        else cout << health;
-        
-        setTextColor(Color::WHITE);
+    if (!level.init(currentLevelNum)) {
+        return false;  // Return error to exit from main
     }
+    level.printLevel();
 
     p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
@@ -216,13 +119,6 @@ void Game::runGame() {
     bool p1PrevTorch = false;
     bool p2PrevTorch = false;
     bool forceUpdate = true; // To draw the first frame
-    
-    // Track previous legend values to avoid unnecessary redraws
-    int p1PrevHealth = -1;
-    char p1PrevInventory = '\0';
-    int p2PrevHealth = -1;
-    char p2PrevInventory = '\0';
-    int prevTotalScore = -1;
     
     string displayMessage = "";
     int messageTimer = 0;
@@ -342,62 +238,11 @@ void Game::runGame() {
 
             // stage restart
             activeBombs.clear();
-            level.init(currentLevelNum); // map restart
-            level.printLevel();
-            
-            // Draw legend after level restart
-            int legendX = level.getLegendX();
-            int legendY = level.getLegendY();
-            if (legendX >= 0 && legendY >= 0) {
-                // Clear legend area (3 lines, 20 chars wide)
-                for (int i = 0; i < 3; i++) {
-                    gotoxy(legendX, legendY + i);
-                    for (int j = 0; j < 20; j++) {
-                        cout << ' ';
-                    }
-                }
-                
-                // Draw initial legend
-                gotoxy(legendX, legendY);
-                setTextColor(Color::LIGHTCYAN);
-                cout << "P1 Item:";
-                setTextColor(Color::WHITE);
-                cout << (p1.getInventory() ? p1.getInventory() : ' ');
-                setTextColor(Color::LIGHTCYAN);
-                cout << " HP:";
-                setTextColor(Color::WHITE);
-                int health = p1.getHealth();
-                if (health < 10) cout << "  " << health;
-                else if (health < 100) cout << " " << health;
-                else cout << health;
-                
-                gotoxy(legendX, legendY + 1);
-                setTextColor(Color::YELLOW);
-                cout << "Score:";
-                setTextColor(Color::WHITE);
-                int totalScore = p1.getScore() + p2.getScore();
-                if (totalScore < 10) cout << "     " << totalScore;
-                else if (totalScore < 100) cout << "    " << totalScore;
-                else if (totalScore < 1000) cout << "   " << totalScore;
-                else if (totalScore < 10000) cout << "  " << totalScore;
-                else if (totalScore < 100000) cout << " " << totalScore;
-                else cout << totalScore;
-                
-                gotoxy(legendX, legendY + 2);
-                setTextColor(Color::LIGHTMAGENTA);
-                cout << "P2 Item:";
-                setTextColor(Color::WHITE);
-                cout << (p2.getInventory() ? p2.getInventory() : ' ');
-                setTextColor(Color::LIGHTMAGENTA);
-                cout << " HP:";
-                setTextColor(Color::WHITE);
-                health = p2.getHealth();
-                if (health < 10) cout << "  " << health;
-                else if (health < 100) cout << " " << health;
-                else cout << health;
-                
-                setTextColor(Color::WHITE);
+            if (!level.init(currentLevelNum)) { // map restart
+                gameActive = false;
+                return false;  // Return error to exit from main
             }
+            level.printLevel();
 
             // players restart
             p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
@@ -407,28 +252,16 @@ void Game::runGame() {
 
             p1.draw(); p2.draw();
             p1PrevX = -1; forceUpdate = true;
-            
-            // Reset legend previous values to force redraw
-            p1PrevHealth = -1;
-            p1PrevInventory = '\0';
-            p2PrevHealth = -1;
-            p2PrevInventory = '\0';
-            prevTotalScore = -1;
             continue;
         }
 
         if (p1.isFinished() && p2.isFinished()) {
             p1.addScore(200);
             p2.addScore(200);
-            loadNextLevel();
+            if (!loadNextLevel()) {
+                return false;  // Fatal error, exit from main
+            }
             p1PrevX = -1; forceUpdate = true;
-            
-            // Reset legend previous values to force redraw on new level
-            p1PrevHealth = -1;
-            p1PrevInventory = '\0';
-            p2PrevHealth = -1;
-            p2PrevInventory = '\0';
-            prevTotalScore = -1;
             continue;
         }
 
@@ -491,102 +324,42 @@ void Game::runGame() {
             cout << "                                                        ";
         setTextColor(Color::WHITE);
 
-        // Legend drawing at legend position (only update when values change)
-        int legendX = level.getLegendX();
-        int legendY = level.getLegendY();
-        
-        if (legendX >= 0 && legendY >= 0) {
-            int p1Health = p1.getHealth();
-            char p1Inventory = p1.getInventory() ? p1.getInventory() : ' ';
-            int p2Health = p2.getHealth();
-            char p2Inventory = p2.getInventory() ? p2.getInventory() : ' ';
-            int totalScore = p1.getScore() + p2.getScore();
-            
-            // Check if any value changed or it's the first frame
-            bool legendNeedsUpdate = forceUpdate ||
-                p1Health != p1PrevHealth || p1Inventory != p1PrevInventory ||
-                p2Health != p2PrevHealth || p2Inventory != p2PrevInventory ||
-                totalScore != prevTotalScore;
-            
-            if (legendNeedsUpdate) {
-                // Line 1: P1 Item and HP
-                gotoxy(legendX, legendY);
-                setTextColor(Color::LIGHTCYAN);
-                cout << "P1 Item:";
-                setTextColor(Color::WHITE);
-                cout << p1Inventory;
-                setTextColor(Color::LIGHTCYAN);
-                cout << " HP:";
-                setTextColor(Color::WHITE);
-                if (p1Health < 10) cout << "  " << p1Health;
-                else if (p1Health < 100) cout << " " << p1Health;
-                else cout << p1Health;
-                
-                // Line 2: General Score (sum of both players)
-                gotoxy(legendX, legendY + 1);
-                setTextColor(Color::YELLOW);
-                cout << "Score:";
-                setTextColor(Color::WHITE);
-                if (totalScore < 10) cout << "     " << totalScore;
-                else if (totalScore < 100) cout << "    " << totalScore;
-                else if (totalScore < 1000) cout << "   " << totalScore;
-                else if (totalScore < 10000) cout << "  " << totalScore;
-                else if (totalScore < 100000) cout << " " << totalScore;
-                else cout << totalScore;
-                
-                // Line 3: P2 Item and HP
-                gotoxy(legendX, legendY + 2);
-                setTextColor(Color::LIGHTMAGENTA);
-                cout << "P2 Item:";
-                setTextColor(Color::WHITE);
-                cout << p2Inventory;
-                setTextColor(Color::LIGHTMAGENTA);
-                cout << " HP:";
-                setTextColor(Color::WHITE);
-                if (p2Health < 10) cout << "  " << p2Health;
-                else if (p2Health < 100) cout << " " << p2Health;
-                else cout << p2Health;
-                
-                // Update previous values
-                p1PrevHealth = p1Health;
-                p1PrevInventory = p1Inventory;
-                p2PrevHealth = p2Health;
-                p2PrevInventory = p2Inventory;
-                prevTotalScore = totalScore;
-            }
-        }
-        else {
-            // Fallback to old position if legend not found
-            gotoxy(0, HEIGHT);
-            setTextColor(Color::LIGHTCYAN);
-            cout << "P1: Item:";
-            setTextColor(Color::WHITE);
-            cout << (p1.getInventory() ? p1.getInventory() : ' ');
-            setTextColor(Color::LIGHTCYAN);
-            cout << " HP:";
-            setTextColor(Color::WHITE);
-            printHealthBarColored(p1.getHealth());
-            setTextColor(Color::LIGHTCYAN);
-            gotoxy(26, HEIGHT);
-            cout << " Score:";
-            setTextColor(Color::YELLOW);
-            int totalScore = p1.getScore() + p2.getScore();
-            cout << totalScore << "  ";
-            cout << "  ";
-            gotoxy(44, HEIGHT);
-            setTextColor(Color::LIGHTMAGENTA);
-            cout << "P2: Item:";
-            setTextColor(Color::WHITE);
-            cout << (p2.getInventory() ? p2.getInventory() : ' ');
-            setTextColor(Color::LIGHTMAGENTA);
-            cout << " HP:";
-            setTextColor(Color::WHITE);
-            printHealthBarColored(p2.getHealth());
-        }
+        // HUD drawing
+        gotoxy(0, HEIGHT);
+        setTextColor(Color::LIGHTCYAN);
+        cout << "P1: Item:";
+        setTextColor(Color::WHITE);
+        cout << (p1.getInventory() ? p1.getInventory() : ' ');
+        setTextColor(Color::LIGHTCYAN);
+        cout << " HP:";
+        setTextColor(Color::WHITE);
+        printHealthBarColored(p1.getHealth());
+        setTextColor(Color::LIGHTCYAN);
+        gotoxy(26, HEIGHT);
+        cout << " Score:";
+        setTextColor(Color::YELLOW);
+        cout << p1.getScore() << "  ";
+        cout << "  ";
+        gotoxy(44, HEIGHT);
+        setTextColor(Color::LIGHTMAGENTA);
+        cout << "P2: Item:";
+        setTextColor(Color::WHITE);
+        cout << (p2.getInventory() ? p2.getInventory() : ' ');
+        setTextColor(Color::LIGHTMAGENTA);
+        cout << " HP:";
+        setTextColor(Color::WHITE);
+        printHealthBarColored(p2.getHealth());
+        setTextColor(Color::LIGHTMAGENTA);
+        gotoxy(70, HEIGHT);
+        cout << " Score:";
+        setTextColor(Color::YELLOW);
+        cout << p2.getScore() << "  ";
+        cout << "  ";
 
         setTextColor(Color::WHITE);
         Sleep(100);
     }
+    return true;  // Game completed successfully
 }
 void Game::displayInstructions() {
     clear_screen();
@@ -618,7 +391,7 @@ void Game::displayMenu() {
     gotoxy(30, 13); cout << "Enter choice: ";
 }
 
-void Game::run() {
+int Game::run() {
     hideCursor();
     while (isRunning) {
         displayMenu();
@@ -632,7 +405,9 @@ void Game::run() {
 
         switch (choice) {
         case '1': // Start New Game
-            runGame();
+            if (!runGame()) {
+                return 1;  // Fatal error, exit from main
+            }
             break;
         case '2': //Toggle Colors
             setColorMode(!isColorMode());
@@ -653,7 +428,7 @@ void Game::run() {
     clear_screen();
     gotoxy(0, 0);
     cout << "Program finished normally." << endl;
-
+    return 0;
 }
 
 bool Game::pauseGame() {
