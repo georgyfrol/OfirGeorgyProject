@@ -117,7 +117,7 @@ void Game::printHUD(int messageTimer, string displayMessage) {
     setTextColor(Color::LIGHTMAGENTA); cout << "HP: ";
     setTextColor(Color::WHITE);        printHealthBarColored(p2.getHealth());
 
-    //print relevant messages
+    //print relevant message
     gotoxy(0, HEIGHT);
     if (messageTimer > 0) {
         setTextColor(Color::YELLOW);
@@ -125,7 +125,7 @@ void Game::printHUD(int messageTimer, string displayMessage) {
         setTextColor(Color::WHITE);
     }
     else {
-        cout << "                                         "; // clear line
+        cout << "                                                                               "; // clear line
     }
 }
 
@@ -351,51 +351,12 @@ bool Game::runGame() {
             handleRiddle(p2);
             forceUpdate = true;
         }
-        /*
-        gotoxy(0, HEIGHT + 1);
-        if (messageTimer > 0){
-            setTextColor(Color::YELLOW);
-            cout << "INFO: " << displayMessage << "                                    ";
-            messageTimer--;
-        }
-        else 
-            cout << "                                                        ";
-        setTextColor(Color::WHITE);
-        */
+        
         // HUD drawing
 
         printHUD(messageTimer, displayMessage);
-        /*
-        gotoxy(0, HEIGHT);
-        setTextColor(Color::LIGHTCYAN);
-        cout << "P1: Item:";
-        setTextColor(Color::WHITE);
-        cout << (p1.getInventory() ? p1.getInventory() : ' ');
-        setTextColor(Color::LIGHTCYAN);
-        cout << " HP:";
-        setTextColor(Color::WHITE);
-        printHealthBarColored(p1.getHealth());
-        setTextColor(Color::LIGHTCYAN);
-        gotoxy(26, HEIGHT);
-        cout << " Score:";
-        setTextColor(Color::YELLOW);
-        cout << p1.getScore() << "  ";
-        cout << "  ";
-        gotoxy(44, HEIGHT);
-        setTextColor(Color::LIGHTMAGENTA);
-        cout << "P2: Item:";
-        setTextColor(Color::WHITE);
-        cout << (p2.getInventory() ? p2.getInventory() : ' ');
-        setTextColor(Color::LIGHTMAGENTA);
-        cout << " HP:";
-        setTextColor(Color::WHITE);
-        printHealthBarColored(p2.getHealth());
-        setTextColor(Color::LIGHTMAGENTA);
-        gotoxy(70, HEIGHT);
-        cout << " Score:";
-        setTextColor(Color::YELLOW);
-        cout << p2.getScore() << "  ";
-        cout << "  ";*/
+        
+        if (messageTimer > 0) messageTimer--;
 
         setTextColor(Color::WHITE);
         Sleep(100);
