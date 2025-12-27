@@ -494,6 +494,12 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
 
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
+            // Skip legend area (4 lines high, 20 characters wide)
+            if (legendX >= 0 && legendY >= 0) {
+                if (j >= legendX && j < legendX + 20 && i >= legendY && i < legendY + 4) {
+                    continue;  // Don't overwrite legend area
+                }
+            }
 
             if (j == p1x && i == p1y) { // visibility of player 1
                 gotoxy(j, i);

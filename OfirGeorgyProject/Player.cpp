@@ -149,6 +149,15 @@ void Player::draw() {
 char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //players' movments with wrap-around
                                   //HEIGHT and WIDTH are from Level.h 
     
+    // Helper function to check if position is in legend area
+    auto isInLegendArea = [&level](int posX, int posY) -> bool {
+        int legendX = level.getLegendX();
+        int legendY = level.getLegendY();
+        if (legendX < 0 || legendY < 0) return false; // No legend area
+        return (posX >= legendX && posX < legendX + 20 && 
+                posY >= legendY && posY < legendY + 4);
+    };
+    
     // Handle spring acceleration effect
     if (remainingSpringCycles > 0) {
         char collisionResult = ' ';
@@ -163,6 +172,17 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
             else if (next_x >= WIDTH) next_x = 0;
             if (next_y < 0) next_y = HEIGHT - 1;
             else if (next_y >= HEIGHT) next_y = 0;
+            
+            // Check for legend area collision - block movement
+            if (isInLegendArea(next_x, next_y)) {
+                remainingSpringCycles = 0;
+                speed = 1;
+                springDirX = 0;
+                springDirY = 0;
+                dir_x = 0;
+                dir_y = 0;
+                return ' ';
+            }
             
             char nextCell = level.getCharAt(next_x, next_y);
             
@@ -329,10 +349,16 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
             if (next_y < 0) next_y = HEIGHT - 1;
             else if (next_y >= HEIGHT) next_y = 0;
             
-            char nextCell = level.getCharAt(next_x, next_y);
-            
-            // Check for wall collision
-            if (nextCell == 'W') {
+            // Check for legend area collision - block sideways movement
+            if (isInLegendArea(next_x, next_y)) {
+                // Block sideways movement, but don't stop spring
+                // Player stays at current position
+            }
+            else {
+                char nextCell = level.getCharAt(next_x, next_y);
+                
+                // Check for wall collision
+                if (nextCell == 'W') {
                 // Wall blocks sideways movement, but don't stop spring
                 // Player stays at current position
             }
@@ -423,6 +449,7 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
                 else if (nextCell == '1' && level.isDoor1Open()) collisionResult = '1';
                 else if (nextCell == '2') collisionResult = '2';
                 else if (isdigit(nextCell) && nextCell != '0') collisionResult = nextCell;
+                }
             }
         }
         
@@ -456,6 +483,11 @@ char Player::move(Level& level, std::string& msg, Player* otherPlayer) { //playe
         next_y = HEIGHT - 1;
     else if (next_y >= HEIGHT)
         next_y = 0;
+
+    // Check for legend area collision - block normal movement
+    if (isInLegendArea(next_x, next_y)) {
+        return ' ';  // Block movement, stay in place
+    }
 
     char nextCell = level.getCharAt(next_x, next_y);
 

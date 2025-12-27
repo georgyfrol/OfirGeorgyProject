@@ -158,6 +158,15 @@ bool Game::runGame() {
     bool p2PrevTorch = false;
     bool forceUpdate = true; // To draw the first frame
     
+    // Track previous legend values to prevent blinking
+    int p1PrevHealth = -1;
+    int p1PrevScore = -1;
+    char p1PrevInventory = '\0';
+    int p2PrevHealth = -1;
+    int p2PrevScore = -1;
+    char p2PrevInventory = '\0';
+    bool legendNeedsUpdate = true; // Force update on first frame
+    
     string displayMessage = "";
     int messageTimer = 0;
     while (gameActive) {
@@ -290,6 +299,9 @@ bool Game::runGame() {
 
             p1.draw(); p2.draw();
             p1PrevX = -1; forceUpdate = true;
+            legendNeedsUpdate = true; // Reset legend tracking
+            p1PrevHealth = -1; p1PrevScore = -1; p1PrevInventory = '\0';
+            p2PrevHealth = -1; p2PrevScore = -1; p2PrevInventory = '\0';
             continue;
         }
 
@@ -300,6 +312,9 @@ bool Game::runGame() {
                 return false;  // Fatal error, exit from main
             }
             p1PrevX = -1; forceUpdate = true;
+            legendNeedsUpdate = true; // Reset legend tracking
+            p1PrevHealth = -1; p1PrevScore = -1; p1PrevInventory = '\0';
+            p2PrevHealth = -1; p2PrevScore = -1; p2PrevInventory = '\0';
             continue;
         }
 
@@ -330,6 +345,7 @@ bool Game::runGame() {
                 p2PrevX = p2.getX(); p2PrevY = p2.getY();
                 p1PrevTorch = p1HasTorch; p2PrevTorch = p2HasTorch;
                 forceUpdate = false;
+                legendNeedsUpdate = true; // Legend needs to be redrawn after lighting update
             }
         }
         else {
@@ -346,15 +362,34 @@ bool Game::runGame() {
         if (p1Result == '?') {
             handleRiddle(p1);
             forceUpdate = true; // Screen was cleared after riddle, need to redraw
+            legendNeedsUpdate = true;
         }
         if (p2Result == '?') {
             handleRiddle(p2);
             forceUpdate = true;
+            legendNeedsUpdate = true;
         }
         
-        // HUD drawing
-
-        printHUD(messageTimer, displayMessage);
+        // Check if legend values changed
+        bool legendChanged = 
+            (p1.getHealth() != p1PrevHealth) ||
+            (p1.getScore() != p1PrevScore) ||
+            (p1.getInventory() != p1PrevInventory) ||
+            (p2.getHealth() != p2PrevHealth) ||
+            (p2.getScore() != p2PrevScore) ||
+            (p2.getInventory() != p2PrevInventory);
+        
+        // HUD drawing - only update when values change or after lighting update
+        if (legendChanged || legendNeedsUpdate) {
+            printHUD(messageTimer, displayMessage);
+            p1PrevHealth = p1.getHealth();
+            p1PrevScore = p1.getScore();
+            p1PrevInventory = p1.getInventory();
+            p2PrevHealth = p2.getHealth();
+            p2PrevScore = p2.getScore();
+            p2PrevInventory = p2.getInventory();
+            legendNeedsUpdate = false;
+        }
         
         if (messageTimer > 0) messageTimer--;
 
