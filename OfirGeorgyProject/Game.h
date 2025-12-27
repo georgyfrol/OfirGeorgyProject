@@ -30,6 +30,7 @@ private:
     bool pauseGame();
     bool loadNextLevel();  // Returns false on fatal error
     void handleRiddle(Player& p);
+    void printHUD(int messageTimer, string displayMessage);
 
 public:
     // Main execution loop for the application

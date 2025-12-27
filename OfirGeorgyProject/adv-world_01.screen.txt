@@ -1,8 +1,8 @@
 L                   WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
                     W ?             W                           ?              W
                     W  WWWWWWWWWWW  W  WWWWWWWWWWWWWWWWWWWW  WWWWWWWWWWWWWWWW  W
-WWWWWWWWWWWWWWWWWWWWW            W  W  W                  W  W  @@@         W  W
-W  W  W       W  W  WWWWWWWWWWW  W  W  W  WWWWWWWWWWWWWW  W  W  WWWWWW      W  W
+                    W            W  W  W                  W  W              W  W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW  W  W  W  WWWWWWWWWWWWWW  W  W  WWWWWW      W  W
 W  W  W       W  W  W            W     W  W            W  W  W      \W         W
 W  W  W  WWWWWW  W  W  WWWWWWWWWWWWWWWWW  W  WWWWWWWW  W  W  WWWWWWWWW      W  W
 W                W            W           W            W  W         \W      W  W

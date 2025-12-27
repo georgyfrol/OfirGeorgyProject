@@ -91,10 +91,48 @@ bool Game::loadNextLevel() {
     p2.draw();
     return true;  // Success
 }
+void Game::printHUD(int messageTimer, string displayMessage) {
+    int x = level.getLegendX();
+    int y = level.getLegendY();
+
+    // player 1
+    gotoxy(x, y);
+    setTextColor(Color::LIGHTCYAN); cout << "P1: Item:";
+    setTextColor(Color::WHITE);     cout << (p1.getInventory() ? p1.getInventory() : ' ');
+    setTextColor(Color::LIGHTCYAN); cout << " Score:";
+    setTextColor(Color::YELLOW);    cout << p1.getScore();
+
+    gotoxy(x, y + 1);
+    setTextColor(Color::LIGHTCYAN); cout << "HP: ";
+    setTextColor(Color::WHITE);     printHealthBarColored(p1.getHealth());
+
+    // player 2
+    gotoxy(x, y + 2);
+    setTextColor(Color::LIGHTMAGENTA); cout << "P2: Item:";
+    setTextColor(Color::WHITE);        cout << (p2.getInventory() ? p2.getInventory() : ' ');
+    setTextColor(Color::LIGHTMAGENTA); cout << " Score:";
+    setTextColor(Color::YELLOW);       cout << p2.getScore();
+
+    gotoxy(x, y + 3);
+    setTextColor(Color::LIGHTMAGENTA); cout << "HP: ";
+    setTextColor(Color::WHITE);        printHealthBarColored(p2.getHealth());
+
+    //print relevant messages
+    gotoxy(0, HEIGHT);
+    if (messageTimer > 0) {
+        setTextColor(Color::YELLOW);
+        cout << "INFO: " << displayMessage;
+        setTextColor(Color::WHITE);
+    }
+    else {
+        cout << "                                         "; // clear line
+    }
+}
 
 bool Game::runGame() {
     gameActive = true;
     clear_screen();
+    Level::globalRiddleIndex = 0;
 
     p1.setHealth(100);
     p1.setScore(0);
@@ -313,7 +351,7 @@ bool Game::runGame() {
             handleRiddle(p2);
             forceUpdate = true;
         }
-
+        /*
         gotoxy(0, HEIGHT + 1);
         if (messageTimer > 0){
             setTextColor(Color::YELLOW);
@@ -323,8 +361,11 @@ bool Game::runGame() {
         else 
             cout << "                                                        ";
         setTextColor(Color::WHITE);
-
+        */
         // HUD drawing
+
+        printHUD(messageTimer, displayMessage);
+        /*
         gotoxy(0, HEIGHT);
         setTextColor(Color::LIGHTCYAN);
         cout << "P1: Item:";
@@ -354,7 +395,7 @@ bool Game::runGame() {
         cout << " Score:";
         setTextColor(Color::YELLOW);
         cout << p2.getScore() << "  ";
-        cout << "  ";
+        cout << "  ";*/
 
         setTextColor(Color::WHITE);
         Sleep(100);
@@ -517,8 +558,11 @@ void Game::handleRiddle(Player& p) {
     gotoxy(20, 17);
     if (r->checkAnswer(input)) {
         setTextColor(Color::GREEN);
-        cout << "CORRECT! +100 Points";
+        cout << "CORRECT! +100 Points +10HP";
         p.addScore(100);
+        int h = p.getHealth();
+        h += 10;
+        p.setHealth(h);
         p.stop();
         Sleep(1000);
 
@@ -530,7 +574,7 @@ void Game::handleRiddle(Player& p) {
     }
     else {
         setTextColor(Color::RED);
-        cout << "WRONG! -10 HP -10 Points";
+        cout << "WRONG! -10 Points -10 HP";
         p.reduceHealth(10);
         p.reduceScore(10);
         p.stop();

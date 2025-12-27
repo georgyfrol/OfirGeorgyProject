@@ -98,16 +98,4 @@ public:
         file.close();
         return true;
     }
-    /*static vector<Riddle> getRiddles(int levelNum) {
-        vector<Riddle> list;
-
-        if (levelNum == 1) {
-            list.push_back({ "What has roots as nobody sees,\n                    Is taller than trees,\n                    Up, up it goes,\n                    And yet never grows?", "mountain" });
-            list.push_back({ "Alive without breath,\n                    As cold as death;\n                    Never thirsty, ever drinking,\n                    All in mail never clinking.", "fish" });
-            list.push_back({ "What has keys but can't open locks?", "piano" });
-            list.push_back({ "I speak without a mouth. What am I?", "echo" });
-        }
-
-        return list;
-    }*/
 };

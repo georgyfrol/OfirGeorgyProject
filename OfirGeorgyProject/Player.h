@@ -84,7 +84,11 @@ public:
     int getHealth() const { return health; }
     int getScore() const { return score; }
 
-    void setHealth(int h) { health = h; }
+    void setHealth(int h) {
+        health = h;
+        if (health > 100)
+            health = 100;
+    }
     void setScore(int s) { score = s; }
 
     void reduceHealth(int amount) {

@@ -1,1 +1,2 @@
 1) colors support - added a toggle to a home menu to switch between color and non color modes
+2) graphical representation of players' health: [##########] is 100%,  [#########.] is 90% ect. it also changes the bar's color with health getting lower - 70%-100% green, 20%-70% yellow, 20% and lower red.

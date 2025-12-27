@@ -14,6 +14,8 @@
 
 using namespace std;
 
+int Level::globalRiddleIndex = 0;
+
 string formatRiddleString(string text) {
     size_t pos = 0;
     while ((pos = text.find("\\n", pos)) != string::npos) {
@@ -77,17 +79,17 @@ bool Level::init(int levelNum) {
     }
     file.close();
     
-    int currentRiddleIndex = 0;
+    //int currentRiddleIndex = 0;
 
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             if (map[y][x] == '?') {
                 // ties a '?' on the map with a next riddle from the file
-                if (currentRiddleIndex < fileRiddles.size()) {
-                    Riddle r = fileRiddles[currentRiddleIndex];
+                if (Level::globalRiddleIndex < fileRiddles.size()) {
+                    Riddle r = fileRiddles[Level::globalRiddleIndex];
                     r.setPosition(x, y);
                     addRiddle(r);
-                    currentRiddleIndex++;
+                    Level::globalRiddleIndex++;
                 }
                 else {
                     // if not enough riddles in the file, remove '?' from map
@@ -135,6 +137,15 @@ bool Level::init(int levelNum) {
     // Detect and initialize obstacles from the map
     detectObstacles();
 
+    for (int y = 0; y < HEIGHT; y++) {        
+        for (int x = 0; x < WIDTH; x++) {     
+            if (map[y][x] == 'L') {           
+                legendX = x;
+                legendY = y;
+                map[y][x] = ' ';              
+            }
+        }
+    }
     return true;
 }
 

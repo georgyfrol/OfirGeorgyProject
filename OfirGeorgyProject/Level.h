@@ -21,8 +21,8 @@ class Level {
 	vector<Obstacle> obstacles;  // All obstacles detected from the map
 	bool isDark = false;
 	bool door2BonusGiven = false;
-	int legendX = -1;  // X coordinate of legend area (top-left corner marked by 'L')
-	int legendY = -1;  // Y coordinate of legend area (top-left corner marked by 'L')
+	int legendX = 0;  // X coordinate of legend area (top-left corner marked by 'L')
+	int legendY = 0;  // Y coordinate of legend area (top-left corner marked by 'L')
 
 public:
 	// initialize the hardcoded map
@@ -63,6 +63,8 @@ public:
 	const vector<Obstacle>& getObstacles() const { return obstacles; }
 	vector<Obstacle>& getObstacles() { return obstacles; }
 	Obstacle* getObstacleAt(int x, int y);  // Get obstacle at position, or nullptr if none
+
+	static int globalRiddleIndex;
 	
 	void setDark(bool dark) { isDark = dark; }
 	bool isLevelDark() const { return isDark; }
