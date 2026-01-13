@@ -2,5 +2,9 @@
 x64/
 Debug/
 Release/
+OfirGeorgyProject.exe
+OfirGeorgyProject.pdb
+adv-world.result
+adv-world.steps
 *.user
 *.zip

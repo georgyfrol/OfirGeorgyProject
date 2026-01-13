@@ -1,38 +1,64 @@
 #pragma once
-#include <iostream>
-#include "io_utils.h"
-#include "Player.h"
 #include "Level.h"
+#include "Player.h"
 #include "Bomb.h"
-#include "Spring.h"
 #include <vector>
 #include <string>
+#include <list>
+#include <fstream>
 
-
-string getHealthBar(int health);
-void printHealthBarColored(int health);
+enum class GameMode {
+    NORMAL,
+    SAVE,
+    LOAD
+};
 
 // Game Class (Handles Menu and Main Loop)
 class Game {
 private:
+    Level level;
+    Player p1;
+    Player p2;
+    std::list<Bomb> activeBombs;
     bool isRunning = true;
     bool gameActive = false;
-    int currentLevelNum;
+    int currentLevelNum = 1;
 
-    Player p1, p2;
-    Level level;
-    std::vector<Bomb> activeBombs;
-    // Game Logic
+    GameMode currentMode = GameMode::NORMAL;
+    bool silentMode = false;
+    long long gameCycle = 0; // cycle counter
+    unsigned int randomSeed;
 
-    bool runGame();  // Returns false on fatal error
-    void displayInstructions();
-    void displayMenu();
-    bool pauseGame();
-    bool loadNextLevel();  // Returns false on fatal error
-    void handleRiddle(Player& p);
-    void printHUD(int messageTimer, string displayMessage);
+    // work with files
+    std::ofstream stepsFileOut;
+    std::ofstream resultFileOut;
+    std::ifstream stepsFileIn;
+    std::ifstream resultFileIn;
+
+    struct LoadedStep {
+        long long cycle;
+        char key;
+        std::string extraData;
+    };
+    std::vector<LoadedStep> loadedSteps;
+    int currentStepIndex = 0;
+
+    void initFiles(int argc, char* argv[]);
+    void saveStep(char key, const std::string& extra = "");
+    char loadStep();
+    std::string loadRiddleAnswer();
+
+    void saveResultEvent(const std::string& eventType, const std::string& details);
+    void checkResultEvent(const std::string& expectedType, const std::string& expectedDetails);
 
 public:
-    // Main execution loop for the application
-    int run();  // Returns 0 on success, 1 on fatal error
+    // Game Logic
+    int run(int argc, char* argv[]); // Returns false on fatal error
+    bool runGame();	// Returns 0 on success, 1 on fatal error
+    bool loadNextLevel();	// Returns false on fatal error
+    void displayMenu();
+    void displayInstructions();
+    bool pauseGame();
+    void handleRiddle(Player& p, int targetX, int targetY);
+    void printHUD(int messageTimer, std::string displayMessage);
 };

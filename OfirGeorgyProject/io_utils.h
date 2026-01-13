@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
+using namespace std;
 
 // All the functions except setColorMode are from lab session
 
-using namespace std;
-
+extern bool isSilentMode;
 void gotoxy(int x, int y);
 void setTextColor(Color);
 void setColorMode(bool isActive);

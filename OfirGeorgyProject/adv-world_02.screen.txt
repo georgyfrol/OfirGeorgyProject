@@ -1,7 +1,7 @@
 L                   WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
                     W                                                    W  \  W
                     W                                                    W  W  W
-W                   W                                                    W  W  W
+                    W                                                    W  W  W
 WWWWWWWWWWWWWWWWWWWWW                       @                            W  W  W
 W  \  W                                                                  W  W  W
 W  W  W                                                                  W  W  W

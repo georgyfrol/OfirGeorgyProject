@@ -1,51 +1,58 @@
 #include "io_utils.h"
-#include "Color.h"
-//Lab functions
+#include <iostream>
+#include <windows.h>
+#include <cstdlib>
 
 using namespace std;
 
-static bool colorEnabled = true;
-
+bool isSilentMode = false;
+bool isColorActive = true;
 void setColorMode(bool isActive) {
-	colorEnabled = isActive;
+    isColorActive = isActive;
 }
 
 bool isColorMode() {
-	return colorEnabled;
-}
-
-void setTextColor(Color colorToSet) {//if in no colors mode then white
-	if (!colorEnabled) {
-		colorToSet = Color::WHITE;
-	}
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)colorToSet);
+    return isColorActive;
 }
 
 void gotoxy(int x, int y)
 {
-	HANDLE hConsoleOutput;
-	COORD dwCursorPosition;
-	cout << flush;
-	dwCursorPosition.X = x;
-	dwCursorPosition.Y = y;
-	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(hConsoleOutput, dwCursorPosition);
+    if (isSilentMode) return;
+    HANDLE hConsoleOutput;
+    COORD dwCursorPosition;
+    cout.flush();
+    dwCursorPosition.X = x;
+    dwCursorPosition.Y = y;
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hConsoleOutput, dwCursorPosition);
+}
+
+
+void setTextColor(Color color)
+{
+    if (isSilentMode) return;
+
+    if (!isColorActive) {
+        color = Color::WHITE;
+    }
+
+    HANDLE hConsoleOutput;
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsoleOutput, (WORD)color);
 }
 
 void hideCursor()
 {
-	HANDLE myconsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	CONSOLE_CURSOR_INFO CURSOR;
-	CURSOR.dwSize = 1;
-	CURSOR.bVisible = FALSE;
-	SetConsoleCursorInfo(myconsole, &CURSOR);//second argument need pointer
+    if (isSilentMode) return;
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = FALSE;
+    SetConsoleCursorInfo(consoleHandle, &info);
 }
 
 void clear_screen()
 {
-	system("cls");
+    if (isSilentMode) return;
+    system("cls");
 }
-
-
-
-

@@ -7,6 +7,102 @@
 #include <string> 
 #include <cstdlib>  // For system("cls")
 
+void Game::initFiles(int argc, char* argv[]) {
+    currentMode = GameMode::NORMAL;
+    silentMode = false;
+    randomSeed = (unsigned int)time(0);
+
+    if (argc > 1) {
+        string modeStr = argv[1];
+        if (modeStr == "-save") {
+            currentMode = GameMode::SAVE;
+            stepsFileOut.open("adv-world.steps");
+            resultFileOut.open("adv-world.result");
+            stepsFileOut << randomSeed << endl;
+        }
+        else if (modeStr == "-load") {
+            currentMode = GameMode::LOAD;
+            stepsFileIn.open("adv-world.steps");
+            resultFileIn.open("adv-world.result");
+
+            if (stepsFileIn.is_open()) {
+                stepsFileIn >> randomSeed;
+                long long t; char k;
+                while (stepsFileIn >> t >> k) {
+                    string extra = "";
+                    if (k == '?') {
+                        getline(stepsFileIn, extra);
+                        if (!extra.empty() && extra[0] == ' ') extra.erase(0, 1);
+                    }
+                    loadedSteps.push_back({ t, k, extra });
+                }
+            }
+            else {
+                cout << "Error: Could not open adv-world.steps" << endl;
+                exit(1);
+            }
+        }
+    }
+
+    if (argc > 2) {
+        string silentStr = argv[2];
+        if (silentStr == "-silent" && currentMode == GameMode::LOAD) {
+            silentMode = true;
+            isSilentMode = true;
+        }
+    }
+    srand(randomSeed);
+}
+
+void Game::saveStep(char key, const string& extra) {
+    if (currentMode == GameMode::SAVE) {
+        stepsFileOut << gameCycle << " " << key;
+        if (!extra.empty()) stepsFileOut << " " << extra;
+        stepsFileOut << endl;
+    }
+}
+
+char Game::loadStep() {
+    if (currentMode == GameMode::LOAD) {
+        if (currentStepIndex < loadedSteps.size()) {
+            if (loadedSteps[currentStepIndex].cycle == gameCycle) {
+                return loadedSteps[currentStepIndex++].key;
+            }
+        }
+    }
+    return 0;
+}
+
+std::string Game::loadRiddleAnswer() {
+    if (currentMode == GameMode::LOAD) {
+        return loadedSteps[currentStepIndex - 1].extraData;
+    }
+    return "";
+}
+void Game::saveResultEvent(const string& eventType, const string& details) {
+    if (currentMode == GameMode::SAVE) {
+        resultFileOut << gameCycle << " " << eventType << " " << details << endl;
+    }
+}
+
+void Game::checkResultEvent(const string& expectedType, const string& expectedDetails) {
+    if (currentMode == GameMode::LOAD) {
+        long long t; string type, details;
+        if (resultFileIn >> t >> type) {
+            getline(resultFileIn, details);
+            if (!details.empty() && details[0] == ' ') details.erase(0, 1);
+
+            bool match = (t == gameCycle) && (type == expectedType) && (details == expectedDetails);
+            if (silentMode && !match) {
+                bool oldSilent = isSilentMode; isSilentMode = false;
+                cout << "TEST FAILED at cycle " << gameCycle << "!" << endl;
+                cout << "Expected: " << expectedType << " " << expectedDetails << endl;
+                cout << "Got:      " << t << " " << type << " " << details << endl;
+                isSilentMode = oldSilent;
+            }
+        }
+    }
+}
 string getHealthBar(int health) {
     string bar = "[";
     int hashes = health / 10;
@@ -133,6 +229,7 @@ bool Game::runGame() {
     gameActive = true;
     clear_screen();
     Level::globalRiddleIndex = 0;
+    gameCycle = 0;
 
     p1.setHealth(100);
     p1.setScore(0);
@@ -157,7 +254,7 @@ bool Game::runGame() {
     bool p1PrevTorch = false;
     bool p2PrevTorch = false;
     bool forceUpdate = true; // To draw the first frame
-    
+
     // Track previous legend values to prevent blinking
     int p1PrevHealth = -1;
     int p1PrevScore = -1;
@@ -166,20 +263,33 @@ bool Game::runGame() {
     int p2PrevScore = -1;
     char p2PrevInventory = '\0';
     bool legendNeedsUpdate = true; // Force update on first frame
-    
+
     string displayMessage = "";
     int messageTimer = 0;
+
     while (gameActive) {
+        gameCycle++;
+
         string frameMessage = "";
-        if (_kbhit()) {
-            char key = _getch();
-            if (key == 27) { // ESC key
+        char inputKey = 0;
+
+        if (currentMode == GameMode::LOAD) {
+            inputKey = loadStep();
+        }
+        else {
+            if (_kbhit()) {
+                inputKey = _getch();
+                saveStep(inputKey);
+            }
+        }
+
+        if (inputKey != 0) {
+            if (inputKey == 27 && currentMode != GameMode::LOAD) {
                 if (!pauseGame()) gameActive = false;
-                // Force screen update after pause
                 forceUpdate = true;
             }
             else {
-                char lowKey = tolower(key);
+                char lowKey = tolower(inputKey);
                 int disposedX, disposedY;
 
                 // Disposal Logic
@@ -192,8 +302,93 @@ bool Game::runGame() {
                     if (disposedItem == '@') activeBombs.emplace_back(disposedX, disposedY);
                 }
                 else {
-                    p1.setDirection(key);
-                    p2.setDirection(key);
+
+                    // --- PLAYER 1 (WAXD) ---
+                    if (lowKey == 'w') { // up
+                        int nx = p1.getX(); int ny = p1.getY() - 1;
+                        if (level.getCharAt(nx, ny) == '?') {
+                            handleRiddle(p1, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p1.setDirection(inputKey);
+                    }
+                    else if (lowKey == 'x') { // down
+                        int nx = p1.getX(); int ny = p1.getY() + 1;
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p1.setDirection(0);
+                            handleRiddle(p1, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p1.setDirection(inputKey);
+                    }
+                    else if (lowKey == 'a') { // left
+                        int nx = p1.getX() - 1; int ny = p1.getY();
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p1.setDirection(0);
+                            handleRiddle(p1, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p1.setDirection(inputKey);
+                    }
+                    else if (lowKey == 'd') { // right
+                        int nx = p1.getX() + 1; int ny = p1.getY();
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p1.setDirection(0);
+                            handleRiddle(p1, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p1.setDirection(inputKey);
+                    }
+
+                    // --- PLAYER 2 (IJML) ---
+                    else if (lowKey == 'i') { // up
+                        int nx = p2.getX(); int ny = p2.getY() - 1;
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p2.setDirection(0);
+                            handleRiddle(p2, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p2.setDirection(inputKey);
+                    }
+                    else if (lowKey == 'm') { // down
+                        int nx = p2.getX(); int ny = p2.getY() + 1;
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p2.setDirection(0);
+                            handleRiddle(p2, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p2.setDirection(inputKey);
+                    }
+                    else if (lowKey == 'j') { // left
+                        int nx = p2.getX() - 1; int ny = p2.getY();
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p2.setDirection(0);
+                            handleRiddle(p2, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p2.setDirection(inputKey);
+                    }
+                    else if (lowKey == 'l') { // right
+                        int nx = p2.getX() + 1; int ny = p2.getY();
+                        if (level.getCharAt(nx, ny) == '?') {
+                            p2.setDirection(0);
+                            handleRiddle(p2, nx, ny);
+                            forceUpdate = true;
+                            legendNeedsUpdate = true;
+                        }
+                        else p2.setDirection(inputKey);
+                    }
+                    else {
+                        p1.setDirection(inputKey);
+                        p2.setDirection(inputKey);
+                    }
                 }
             }
         }
@@ -204,9 +399,13 @@ bool Game::runGame() {
                 // Check distance to players
                 if (!p1.isFinished() && abs(p1.getX() - it->getX()) <= 2 && abs(p1.getY() - it->getY()) <= 2) {
                     p1.reduceHealth(50); // Damage 50
+                    saveResultEvent("LIFE_LOST", "Player1");
+                    checkResultEvent("LIFE_LOST", "Player1");
                 }
                 if (!p2.isFinished() && abs(p2.getX() - it->getX()) <= 2 && abs(p2.getY() - it->getY()) <= 2) {
                     p2.reduceHealth(50); // Damage 50
+                    saveResultEvent("LIFE_LOST", "Player2");
+                    checkResultEvent("LIFE_LOST", "Player2");
                 }
 
                 it = activeBombs.erase(it);
@@ -247,10 +446,7 @@ bool Game::runGame() {
             p1Result = p1.move(level, frameMessage, &p2);
             if (p1Result == '3') {
                 p1.setFinished(true);
-                p1.erase(level);            }
-            else if (p1Result == '?') {
-                handleRiddle(p1);
-                forceUpdate = true;
+                p1.erase(level);
             }
         }
         char p2Result = ' ';
@@ -260,28 +456,32 @@ bool Game::runGame() {
                 p2.setFinished(true);
                 p2.erase(level);
             }
-            else if (p2Result == '?') {
-                handleRiddle(p2);
-                forceUpdate = true;
-            }
         }
+
         if (!frameMessage.empty()) {
             displayMessage = frameMessage;
             messageTimer = 30;
         }
+
         if (p1.getHealth() == 0 || p2.getHealth() == 0) {
-            
+
+            string who = (p1.getHealth() == 0) ? "Player1" : "Player2";
+            saveResultEvent("DEATH", who);
+            checkResultEvent("DEATH", who);
+
             if (p1.getHealth() == 0)
                 p1.reduceScore(100);
             else
                 p2.reduceScore(100);
 
-            clear_screen(); //message
-            setTextColor(Color::LIGHTRED);
-            cout << "\n\n\n\t\tPLAYER DIED! RESTARTING LEVEL...";
-            cout << "\n\t\t-100 POINTS";
-            Sleep(2000);
-            setTextColor(Color::WHITE);
+            if (!isSilentMode) {
+                clear_screen(); //message
+                setTextColor(Color::LIGHTRED);
+                cout << "\n\n\n\t\tPLAYER DIED! RESTARTING LEVEL...";
+                cout << "\n\t\t-100 POINTS";
+                Sleep(2000);
+                setTextColor(Color::WHITE);
+            }
 
             // stage restart
             activeBombs.clear();
@@ -306,6 +506,8 @@ bool Game::runGame() {
         }
 
         if (p1.isFinished() && p2.isFinished()) {
+            saveResultEvent("LEVEL_COMPLETE", to_string(currentLevelNum));
+            checkResultEvent("LEVEL_COMPLETE", to_string(currentLevelNum));
             p1.addScore(200);
             p2.addScore(200);
             if (!loadNextLevel()) {
@@ -321,14 +523,6 @@ bool Game::runGame() {
         // Lighting logic
         bool p1HasTorch = (p1.getInventory() == Torch::SYMBOL);
         bool p2HasTorch = (p2.getInventory() == Torch::SYMBOL);
-
-        int drawP1x = p1.isFinished() ? -1 : p1.getX();
-        int drawP1y = p1.isFinished() ? -1 : p1.getY();
-        bool drawP1Torch = p1.isFinished() ? false : p1HasTorch;
-
-        int drawP2x = p2.isFinished() ? -1 : p2.getX();
-        int drawP2y = p2.isFinished() ? -1 : p2.getY();
-        bool drawP2Torch = p2.isFinished() ? false : p2HasTorch;
 
         // Check if anything important for lighting has changed
         bool stateChanged =
@@ -352,52 +546,51 @@ bool Game::runGame() {
             if (!p1.isFinished()) p1.draw();
             if (!p2.isFinished()) p2.draw();
         }
-        
+
         // Update springs
         for (auto& spring : level.getSprings()) {
             spring.updateCompression(p1, level);
             spring.updateCompression(p2, level);
         }
 
-        if (p1Result == '?') {
-            handleRiddle(p1);
-            forceUpdate = true; // Screen was cleared after riddle, need to redraw
-            legendNeedsUpdate = true;
-        }
-        if (p2Result == '?') {
-            handleRiddle(p2);
-            forceUpdate = true;
-            legendNeedsUpdate = true;
-        }
-        
-        // Check if legend values changed
-        bool legendChanged = 
-            (p1.getHealth() != p1PrevHealth) ||
-            (p1.getScore() != p1PrevScore) ||
-            (p1.getInventory() != p1PrevInventory) ||
-            (p2.getHealth() != p2PrevHealth) ||
-            (p2.getScore() != p2PrevScore) ||
-            (p2.getInventory() != p2PrevInventory);
-        
-        // HUD drawing - only update when values change or after lighting update
-        if (legendChanged || legendNeedsUpdate) {
-            printHUD(messageTimer, displayMessage);
-            p1PrevHealth = p1.getHealth();
-            p1PrevScore = p1.getScore();
-            p1PrevInventory = p1.getInventory();
-            p2PrevHealth = p2.getHealth();
-            p2PrevScore = p2.getScore();
-            p2PrevInventory = p2.getInventory();
-            legendNeedsUpdate = false;
-        }
-        
-        if (messageTimer > 0) messageTimer--;
+        if (!silentMode) {
+            // Check if legend values changed
+            bool legendChanged =
+                (p1.getHealth() != p1PrevHealth) ||
+                (p1.getScore() != p1PrevScore) ||
+                (p1.getInventory() != p1PrevInventory) ||
+                (p2.getHealth() != p2PrevHealth) ||
+                (p2.getScore() != p2PrevScore) ||
+                (p2.getInventory() != p2PrevInventory);
 
-        setTextColor(Color::WHITE);
-        Sleep(100);
+            // HUD drawing - only update when values change or after lighting update
+            if (legendChanged || legendNeedsUpdate || messageTimer > 0) {
+                printHUD(messageTimer, displayMessage);
+                p1PrevHealth = p1.getHealth();
+                p1PrevScore = p1.getScore();
+                p1PrevInventory = p1.getInventory();
+                p2PrevHealth = p2.getHealth();
+                p2PrevScore = p2.getScore();
+                p2PrevInventory = p2.getInventory();
+                legendNeedsUpdate = false;
+            }
+
+            if (messageTimer > 0) messageTimer--;
+
+            setTextColor(Color::WHITE);
+            Sleep(120);
+        }
+        else {
+            if (messageTimer > 0)
+                messageTimer--;
+            Sleep(0);
+        }
     }
+    saveResultEvent("GAME_END", "TotalScore:" + to_string(p1.getScore() + p2.getScore()));
+    checkResultEvent("GAME_END", "TotalScore:" + to_string(p1.getScore() + p2.getScore()));
     return true;  // Game completed successfully
 }
+
 void Game::displayInstructions() {
     clear_screen();
     gotoxy(10, 3);  cout << "--- Instructions and Keys ---";
@@ -428,43 +621,65 @@ void Game::displayMenu() {
     gotoxy(30, 13); cout << "Enter choice: ";
 }
 
-int Game::run() {
-    hideCursor();
-    while (isRunning) {
-        displayMenu();
+int Game::run(int argc, char* argv[]) {
+    initFiles(argc, argv);
 
-        // Non-blocking input check for menu selection
-        while (!_kbhit()) {
-            Sleep(50);
+    hideCursor();
+
+    if (currentMode == GameMode::LOAD) {
+        if (!runGame()) {
+            return 1;
         }
 
-        char choice = _getch();
+        if (silentMode) {
+            bool oldSilent = isSilentMode; isSilentMode = false;
+            cout << "Test Finished." << endl;
+            isSilentMode = oldSilent;
+        }
+    }
+    else {
+        while (isRunning) {
+            displayMenu();
 
-        switch (choice) {
-        case '1': // Start New Game
-            if (!runGame()) {
-                return 1;  // Fatal error, exit from main
+            // Non-blocking input check for menu selection
+            while (!_kbhit()) {
+                Sleep(50);
             }
-            break;
-        case '2': //Toggle Colors
-            setColorMode(!isColorMode());
-            break;
-        case '8': // Instructions
-            displayInstructions();
-            break;
-        case '9': // EXIT
-            isRunning = false;
-            break;
-        default:
-            // Invalid choice is ignored; loop repeats
-            break;
+
+            char choice = _getch();
+
+            switch (choice) {
+            case '1': // Start New Game
+                if (!runGame()) {
+                    return 1;  // Fatal error
+                }
+                break;
+            case '2': // Toggle Colors
+                setColorMode(!isColorMode());
+                break;
+            case '8': // Instructions
+                displayInstructions();
+                break;
+            case '9': // EXIT
+                isRunning = false;
+                break;
+            default:
+                break;
+            }
         }
     }
 
+    if (stepsFileOut.is_open()) stepsFileOut.close();
+    if (resultFileOut.is_open()) resultFileOut.close();
+    if (stepsFileIn.is_open()) stepsFileIn.close();
+    if (resultFileIn.is_open()) resultFileIn.close();
+
     // Clean exit
     clear_screen();
-    gotoxy(0, 0);
-    cout << "Program finished normally." << endl;
+    if (!isSilentMode) {
+        gotoxy(0, 0);
+        cout << "Program finished normally." << endl;
+    }
     return 0;
 }
 
@@ -516,71 +731,74 @@ bool Game::pauseGame() {
         Sleep(100);
     }
 }
-void Game::handleRiddle(Player& p) {
-    int targetX = p.getX() + p.getDirX();
-    int targetY = p.getY() + p.getDirY();
-
-    if (targetX < 0) targetX = WIDTH - 1; else if (targetX >= WIDTH) targetX = 0;
-    if (targetY < 0) targetY = HEIGHT - 1; else if (targetY >= HEIGHT) targetY = 0;
+void Game::handleRiddle(Player& p, int targetX, int targetY) {
+    if (isSilentMode) return;
 
     const Riddle* r = level.getRiddle(targetX, targetY);
-    if (!r) return;
-
-    clear_screen();
-    setTextColor(Color::CYAN);
-    gotoxy(20, 8);  cout << "=== RIDDLE ===";
-    setTextColor(Color::WHITE);
-    gotoxy(20, 10); cout << r->getQuestion();
-    gotoxy(20, 15); cout << "Answer: ";
-
-    hideCursor();
+    if (r == nullptr) return;
 
     string input = "";
-    while (true) {
-        char c = _getch();
-        if (c == 13) break; // Enter
-        if (c == 8) { // Backspace
-            if (!input.empty()) {
-                input.pop_back();
-                cout << "\b \b";
+
+    if (currentMode == GameMode::LOAD) {
+        input = loadRiddleAnswer();
+    }
+    else {
+        clear_screen();
+        setTextColor(Color::CYAN);
+        gotoxy(20, 8);  cout << "=== RIDDLE ===";
+        setTextColor(Color::WHITE);
+        gotoxy(20, 10); cout << r->getQuestion();
+        gotoxy(20, 15); cout << "Answer: ";
+
+        HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_CURSOR_INFO info;
+        info.dwSize = 100;
+        info.bVisible = TRUE;
+        SetConsoleCursorInfo(consoleHandle, &info);
+
+        while (true) {
+            char c = _getch();
+            if (c == 13) // enter
+                break;
+            if (c == 8) { // backspace
+                if (!input.empty()) {
+                    input.pop_back(); cout << "\b \b";
+                }
+            }
+            else if (c >= 32 && c <= 126) {
+                input += c; cout << c;
             }
         }
-        else if (c >= 32 && c <= 126) {
-            input += c;
-            cout << c;
-        }
+
+        info.bVisible = FALSE;
+        SetConsoleCursorInfo(consoleHandle, &info);
+
+        saveStep('?', input);
     }
 
-    gotoxy(20, 17);
-    if (r->checkAnswer(input)) {
-        setTextColor(Color::GREEN);
-        cout << "CORRECT! +100 Points +10HP";
+    bool correct = r->checkAnswer(input);
+    string resultStr = correct ? "CORRECT" : "WRONG";
+
+    saveResultEvent("RIDDLE", r->getQuestion() + "|" + input + "|" + resultStr);
+    checkResultEvent("RIDDLE", r->getQuestion() + "|" + input + "|" + resultStr);
+
+    if (correct) {
+        if (!silentMode) { setTextColor(Color::GREEN); cout << " CORRECT!"; Sleep(1000); }
         p.addScore(100);
-        int h = p.getHealth();
-        h += 10;
-        p.setHealth(h);
-        p.stop();
-        Sleep(1000);
 
         level.setCharAt(targetX, targetY, ' ');
         level.removeRiddle(targetX, targetY);
-
-        p.erase(level);
-        p.setPosition(targetX, targetY);
     }
     else {
-        setTextColor(Color::RED);
-        cout << "WRONG! -10 Points -10 HP";
+        if (!silentMode) { setTextColor(Color::RED); cout << " WRONG!"; Sleep(1000); }
         p.reduceHealth(10);
-        p.reduceScore(10);
-        p.stop();
-        Sleep(1000);
     }
 
-    setTextColor(Color::WHITE);
-
-    clear_screen();
-    level.printLevel();
-    level.drawDoors();
-    level.drawItems();
+    if (!silentMode) {
+        setTextColor(Color::WHITE);
+        clear_screen();
+        level.printLevel();
+        level.drawDoors();
+        level.drawItems();
+    }
 }
