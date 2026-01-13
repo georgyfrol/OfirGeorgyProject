@@ -63,19 +63,23 @@ void Game::saveStep(char key, const string& extra) {
 }
 
 char Game::loadStep() {
-    if (currentMode == GameMode::LOAD) {
-        if (currentStepIndex < loadedSteps.size()) {
-            if (loadedSteps[currentStepIndex].cycle == gameCycle) {
-                return loadedSteps[currentStepIndex++].key;
-            }
+    if (currentStepIndex < loadedSteps.size()) {
+        LoadedStep s = loadedSteps[currentStepIndex];
+        if (s.cycle <= gameCycle) {
+            currentStepIndex++;
+            return s.key;
         }
     }
     return 0;
 }
 
 std::string Game::loadRiddleAnswer() {
-    if (currentMode == GameMode::LOAD) {
-        return loadedSteps[currentStepIndex - 1].extraData;
+    if (currentStepIndex < loadedSteps.size()) {
+        if (loadedSteps[currentStepIndex].key == '?') {
+            string answer = loadedSteps[currentStepIndex].extraData;
+            currentStepIndex++;
+            return answer;
+        }
     }
     return "";
 }
