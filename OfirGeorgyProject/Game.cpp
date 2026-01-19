@@ -147,7 +147,9 @@ bool Game::loadNextLevel() {
         if (!level.init(4)) {
             return false;  // Return error to exit from main
         }
-        level.printLevel();
+        if (!level.isLevelDark()) {
+            level.printLevel();
+        }
         
         // Reset both players to starting positions
         char p1Inventory = p1.getInventory();
@@ -177,7 +179,9 @@ bool Game::loadNextLevel() {
     if (!level.init(currentLevelNum)) {
         return false;  // Return error to exit from main
     }
-    level.printLevel();
+    if (!level.isLevelDark()) {
+        level.printLevel();
+    }
     
     // Reset both players to starting positions on the new map
     p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
@@ -245,7 +249,9 @@ bool Game::runGame() {
     if (!level.init(currentLevelNum)) {
         return false;  // Return error to exit from main
     }
-    level.printLevel();
+    if (!level.isLevelDark()) {
+        level.printLevel();
+    }
 
     p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
@@ -485,6 +491,8 @@ bool Game::runGame() {
                 cout << "\n\t\t-100 POINTS";
                 Sleep(2000);
                 setTextColor(Color::WHITE);
+
+                clear_screen();
             }
 
             // stage restart
@@ -493,7 +501,9 @@ bool Game::runGame() {
                 gameActive = false;
                 return false;  // Return error to exit from main
             }
-            level.printLevel();
+            if (!level.isLevelDark()) {
+                level.printLevel();
+            }
 
             // players restart
             p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
@@ -709,7 +719,9 @@ bool Game::pauseGame() {
                 displayInstructions();
 
                 clear_screen();
-                level.printLevel();
+                if (!level.isLevelDark()) {
+                    level.printLevel();
+                }
                 p1.draw();
                 p2.draw();
 
@@ -801,7 +813,9 @@ void Game::handleRiddle(Player& p, int targetX, int targetY) {
     if (!silentMode) {
         setTextColor(Color::WHITE);
         clear_screen();
-        level.printLevel();
+        if (!level.isLevelDark()) {
+            level.printLevel();
+        }
         level.drawDoors();
         level.drawItems();
     }

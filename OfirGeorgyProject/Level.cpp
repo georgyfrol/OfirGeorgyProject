@@ -492,6 +492,66 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
     int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color) {
     if (!isDark) return;
 
+    // to optimise we update only in a radius
+    const int UPDATE_RADIUS = 8;
+
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+
+            if (legendX >= 0 && legendY >= 0) {
+                if (j >= legendX && j < legendX + 20 && i >= legendY && i < legendY + 4) {
+                    continue;
+                }
+            }
+            bool farFromP1 = abs(j - p1x) > UPDATE_RADIUS || abs(i - p1y) > UPDATE_RADIUS;
+            bool farFromP2 = abs(j - p2x) > UPDATE_RADIUS || abs(i - p2y) > UPDATE_RADIUS;
+
+            if (farFromP1 && farFromP2) {
+                continue;
+            }
+
+            if (j == p1x && i == p1y) { // visibility of player 1
+                gotoxy(j, i);
+                setTextColor(p1Color);
+                cout << p1Sym;
+                continue;
+            }
+
+            if (j == p2x && i == p2y) {  // visibility of player 2
+                gotoxy(j, i);
+                setTextColor(p2Color);
+                cout << p2Sym;
+                continue;
+            }
+
+            char c = map[i][j];
+            bool litByP1 = p1Torch && Torch::isLit(j, i, p1x, p1y);
+            bool litByP2 = p2Torch && Torch::isLit(j, i, p2x, p2y);
+
+            if (litByP1 || litByP2 || c == '!') {
+                gotoxy(j, i);
+
+                if ((c == '1' && door1Open) || (c == '2' && door2Open)) {
+                    cout << ' ';
+                }
+                else {
+                    setMapColor(c);
+                    cout << c;
+                }
+            }
+            else {
+                gotoxy(j, i);
+                cout << ' ';
+            }
+        }
+    }
+    setTextColor(Color::WHITE);
+}
+
+/*void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color,
+    int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color) {
+    if (!isDark) return;
+
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             // Skip legend area (4 lines high, 20 characters wide)
@@ -537,4 +597,4 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
         }
     }
     setTextColor(Color::WHITE);
-}
+}*/
