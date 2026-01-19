@@ -140,6 +140,8 @@ void Player::erase(Level& level) {
 }
 
 void Player::draw() {
+    if (isSilentMode) return;
+
     setTextColor(color);
     gotoxy(x, y);
     cout << symbol;

@@ -1,0 +1,15 @@
+213 RIDDLE Alive without breath,\n                    As cold as death;\n                    Never thirsty, ever drinking,\n                    All in mail never clinking|fish|CORRECT
+582 RIDDLE What has keys but can't open locks?|piano|CORRECT
+892 RIDDLE I speak without a mouth. What am I?|echo|CORRECT
+960 LEVEL_COMPLETE 1
+1105 LIFE_LOST Player1 50
+1195 LEVEL_COMPLETE 2
+1207 RIDDLE If you drop me I crack,\n                    But smile at me and I smile back.|mirror|CORRECT
+1304 LIFE_LOST Player1 50
+1304 DEATH Player1
+1333 RIDDLE If you drop me I crack,\n                    But smile at me and I smile back.|mirror|CORRECT
+1625 RIDDLE What runs but never walks,\n                    Murmurs but never talks?|river|CORRECT
+1884 LIFE_LOST Player2 50
+2612 RIDDLE What has a head and a tail\n                    But no body?|coin|CORRECT
+2620 RIDDLE The more of this there is,\n                    The less you see.|darkness|CORRECT
+2651 RIDDLE I'm tall when I'm young,\n                    And I'm short when I'm old.|candle|CORRECT

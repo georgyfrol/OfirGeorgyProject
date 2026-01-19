@@ -150,6 +150,8 @@ bool Level::init(int levelNum) {
 }
 
 void Level::printLevel() {
+    if (isSilentMode) return;
+
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             char c = map[i][j];
@@ -169,6 +171,8 @@ void Level::printLevel() {
 }
 
 void Level::drawDoors() {
+    if (isSilentMode) return;
+
     // Scan the map for doors and draw them with appropriate colors
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
@@ -204,6 +208,8 @@ void Level::drawDoors() {
 }
 
 void Level::drawItems() {
+    if (isSilentMode) return;
+
     for (int y = 0; y < HEIGHT; y++) {
         for (int x = 0; x < WIDTH; x++) {
             char c = map[y][x];
@@ -227,18 +233,20 @@ char Level::getCharAt(int x, int y) {
 void Level::setCharAt(int x, int y, char c) {
     if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
         map[y][x] = c;
-        gotoxy(x, y);
-        if (c == '1' && door1Open) {
-            cout << ' ';
+        if (!isSilentMode) {
+            gotoxy(x, y);
+            if (c == '1' && door1Open) {
+                cout << ' ';
+            }
+            else if (c == '2' && door2Open) {
+                cout << ' ';
+            }
+            else {
+                setMapColor(c);
+                cout << c;
+            }
+            setTextColor(Color::WHITE);
         }
-        else if (c == '2' && door2Open) {
-            cout << ' ';
-        }
-        else {
-            setMapColor(c);
-            cout << c;
-        }
-        setTextColor(Color::WHITE);
     }
 }
 
@@ -490,6 +498,8 @@ Obstacle* Level::getObstacleAt(int x, int y) {
 
 void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color,
     int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color) {
+    if (isSilentMode) return;
+
     if (!isDark) return;
 
     // to optimise we update only in a radius
@@ -547,54 +557,3 @@ void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1C
     }
     setTextColor(Color::WHITE);
 }
-
-/*void Level::updateLighting(int p1x, int p1y, bool p1Torch, char p1Sym, Color p1Color,
-    int p2x, int p2y, bool p2Torch, char p2Sym, Color p2Color) {
-    if (!isDark) return;
-
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-            // Skip legend area (4 lines high, 20 characters wide)
-            if (legendX >= 0 && legendY >= 0) {
-                if (j >= legendX && j < legendX + 20 && i >= legendY && i < legendY + 4) {
-                    continue;  // Don't overwrite legend area
-                }
-            }
-
-            if (j == p1x && i == p1y) { // visibility of player 1
-                gotoxy(j, i);
-                setTextColor(p1Color);
-                cout << p1Sym;
-                continue;
-            }
-
-            if (j == p2x && i == p2y) {  // visibility of player 2
-                gotoxy(j, i);
-                setTextColor(p2Color);
-                cout << p2Sym;
-                continue;
-            }
-
-            char c = map[i][j];
-            bool litByP1 = p1Torch && Torch::isLit(j, i, p1x, p1y);
-            bool litByP2 = p2Torch && Torch::isLit(j, i, p2x, p2y);
-            
-            if (litByP1 || litByP2 || c == '!') {
-                gotoxy(j, i);
-
-                if ((c == '1' && door1Open) || (c == '2' && door2Open)) {
-                    cout << ' ';
-                }
-                else {
-                    setMapColor(c);
-                    cout << c;
-                }
-            }
-            else {
-                gotoxy(j, i);
-                cout << ' ';
-            }
-        }
-    }
-    setTextColor(Color::WHITE);
-}*/

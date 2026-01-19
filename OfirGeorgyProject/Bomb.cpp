@@ -9,10 +9,13 @@ bool Bomb::advance(Level& level) {
     if (!active) return false;
 
     // Display the countdown number on the bomb's position
-    gotoxy(x, y);
-    setTextColor(Color::RED);
-    cout << counter;
-    setTextColor(Color::WHITE);
+    if (!isSilentMode) {
+        gotoxy(x, y);
+        setTextColor(Color::RED);
+        cout << counter;
+        setTextColor(Color::WHITE);
+    }
+    
 
     counter--;
 

@@ -1,0 +1,22 @@
+Format of adv-world.steps
+-------------------------
+Stores replay data to reproduce gameplay.
+
+1. First line: Random Seed (integer).
+2. Other lines: [Cycle] [Key] [Optional_Answer]
+   - Cycle: Game frame number (long long).
+   - Key: Input character.
+   - Optional_Answer: Riddle answer string (only if Key is '?').
+
+Format of adv-world.result
+--------------------------
+Stores game events for automated testing.
+
+Format: [Cycle] [EventType] [Details]
+
+Event Types:
+- RIDDLE: [Question]|[Input]|[Result]
+- LIFE_LOST: [PlayerName] [How much HP was redused]
+- LEVEL_COMPLETE: [LevelNumber]
+- DEATH: [PlayerName]
+- GAME_END: TotalScore:[Score]

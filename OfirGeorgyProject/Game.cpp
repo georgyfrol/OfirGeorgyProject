@@ -237,6 +237,7 @@ bool Game::runGame() {
     gameActive = true;
     clear_screen();
     Level::globalRiddleIndex = 0;
+    int savedRiddleIndex = 0;
     gameCycle = 0;
 
     p1.setHealth(100);
@@ -285,6 +286,10 @@ bool Game::runGame() {
 
         if (currentMode == GameMode::LOAD) {
             inputKey = loadStep();
+            if (!loadedSteps.empty() && gameCycle > loadedSteps.back().cycle + 10) {
+                cout << "The game was not finished\n" << endl;
+                gameActive = false;
+            }
         }
         else {
             if (_kbhit()) {
@@ -409,13 +414,13 @@ bool Game::runGame() {
                 // Check distance to players
                 if (!p1.isFinished() && abs(p1.getX() - it->getX()) <= 2 && abs(p1.getY() - it->getY()) <= 2) {
                     p1.reduceHealth(50); // Damage 50
-                    saveResultEvent("LIFE_LOST", "Player1");
-                    checkResultEvent("LIFE_LOST", "Player1");
+                    saveResultEvent("LIFE_LOST", "Player1 50");
+                    checkResultEvent("LIFE_LOST", "Player1 50");
                 }
                 if (!p2.isFinished() && abs(p2.getX() - it->getX()) <= 2 && abs(p2.getY() - it->getY()) <= 2) {
                     p2.reduceHealth(50); // Damage 50
-                    saveResultEvent("LIFE_LOST", "Player2");
-                    checkResultEvent("LIFE_LOST", "Player2");
+                    saveResultEvent("LIFE_LOST", "Player2 50");
+                    checkResultEvent("LIFE_LOST", "Player2 50");
                 }
 
                 it = activeBombs.erase(it);
@@ -497,6 +502,7 @@ bool Game::runGame() {
 
             // stage restart
             activeBombs.clear();
+            Level::globalRiddleIndex = savedRiddleIndex;
             if (!level.init(currentLevelNum)) { // map restart
                 gameActive = false;
                 return false;  // Return error to exit from main
@@ -524,6 +530,7 @@ bool Game::runGame() {
             checkResultEvent("LEVEL_COMPLETE", to_string(currentLevelNum));
             p1.addScore(200);
             p2.addScore(200);
+            savedRiddleIndex = Level::globalRiddleIndex;
             if (!loadNextLevel()) {
                 return false;  // Fatal error, exit from main
             }
@@ -748,7 +755,6 @@ bool Game::pauseGame() {
     }
 }
 void Game::handleRiddle(Player& p, int targetX, int targetY) {
-    if (isSilentMode) return;
 
     const Riddle* r = level.getRiddle(targetX, targetY);
     if (r == nullptr) return;
@@ -759,6 +765,8 @@ void Game::handleRiddle(Player& p, int targetX, int targetY) {
         input = loadRiddleAnswer();
     }
     else {
+        if (isSilentMode) return;
+
         clear_screen();
         setTextColor(Color::CYAN);
         gotoxy(20, 8);  cout << "=== RIDDLE ===";
@@ -795,19 +803,29 @@ void Game::handleRiddle(Player& p, int targetX, int targetY) {
     bool correct = r->checkAnswer(input);
     string resultStr = correct ? "CORRECT" : "WRONG";
 
-    saveResultEvent("RIDDLE", r->getQuestion() + "|" + input + "|" + resultStr);
-    checkResultEvent("RIDDLE", r->getQuestion() + "|" + input + "|" + resultStr);
+    string q = r->getQuestion();
+    size_t pos = 0;
+    while ((pos = q.find('\n', pos)) != string::npos) {
+        q.replace(pos, 1, "\\n");
+        pos += 2;
+    }
+
+    saveResultEvent("RIDDLE", q + "|" + input + "|" + resultStr);
+    checkResultEvent("RIDDLE", q + "|" + input + "|" + resultStr);
 
     if (correct) {
-        if (!silentMode) { setTextColor(Color::GREEN); cout << " CORRECT!"; Sleep(1000); }
+        if (!silentMode) { setTextColor(Color::GREEN); cout << " CORRECT! + 100 POINTS"; Sleep(1000); }
         p.addScore(100);
 
         level.setCharAt(targetX, targetY, ' ');
         level.removeRiddle(targetX, targetY);
     }
     else {
-        if (!silentMode) { setTextColor(Color::RED); cout << " WRONG!"; Sleep(1000); }
+        if (!silentMode) { setTextColor(Color::RED); cout << " WRONG! - 10 HP"; Sleep(1000); }
         p.reduceHealth(10);
+        string pName = (p.getSymbol() == '$') ? "Player1" : "Player2";
+        saveResultEvent("LIFE_LOST", pName + " 10");
+        checkResultEvent("LIFE_LOST", pName + " 10");
     }
 
     if (!silentMode) {
