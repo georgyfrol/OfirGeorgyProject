@@ -582,7 +582,7 @@ bool Game::runGame() {
             if (messageTimer > 0) messageTimer--;
 
             setTextColor(Color::WHITE);
-            Sleep(120);
+            Sleep(60);
         }
         else {
             if (messageTimer > 0)
