@@ -1,0 +1,1 @@
+Fix for "Need to support any number of rooms" (-10)

@@ -137,64 +137,56 @@ void printHealthBarColored(int health) {
 }
 
 bool Game::loadNextLevel() {
-    // Increment to next level number
     currentLevelNum++;
-    
-    // Check if we've reached level 4 (final level)
-    if (currentLevelNum == 4) {
-        // Load Level 4
-        clear_screen();
-        if (!level.init(4)) {
-            return false;  // Return error to exit from main
+
+    char p1Inventory = p1.getInventory();
+    char p2Inventory = p2.getInventory();
+    activeBombs.clear();
+
+    clear_screen();
+    string nextLevelFile = "adv-world_";
+    if (currentLevelNum < 10) nextLevelFile += "0";
+    nextLevelFile += to_string(currentLevelNum) + ".screen.txt";
+
+    ifstream f(nextLevelFile);
+    if (!f.good()) {
+        if (!isSilentMode) {
+            clear_screen();
+            setTextColor(Color::GREEN);
+            gotoxy(10, 10);
+            cout << "CONGRATULATIONS! YOU HAVE FINISHED ALL LEVELS!";
+            gotoxy(10, 12);
+            cout << "Press any key to return to menu...";
+            setTextColor(Color::WHITE);
+            _getch();   
         }
-        if (!level.isLevelDark()) {
-            level.printLevel();
-        }
-        
-        // Reset both players to starting positions
-        char p1Inventory = p1.getInventory();
-        char p2Inventory = p2.getInventory();
-        p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
-        p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
-        p1.setInventory(p1Inventory);
-        p2.setInventory(p2Inventory);
-        p1.draw();
-        p2.draw();
-        
-        // Wait 5 seconds then return to main menu
-        Sleep(5000);
+
         gameActive = false;
         return true;
     }
-    
-    // Load next level (Level 2 or 3)
+    f.close();
+
     clear_screen();
-    activeBombs.clear();  // Clear bombs from previous level
-    
-    // Preserve player inventory before reset
-    char p1Inventory = p1.getInventory();
-    char p2Inventory = p2.getInventory();
-    
-    // Initialize the new level
     if (!level.init(currentLevelNum)) {
-        return false;  // Return error to exit from main
+        return false;
     }
+
     if (!level.isLevelDark()) {
         level.printLevel();
     }
-    
-    // Reset both players to starting positions on the new map
+
     p1.init(5, 5, '$', Color::LIGHTCYAN, 'w', 'x', 'a', 'd', 's', 'e');
     p2.init(74, 5, '&', Color::LIGHTMAGENTA, 'i', 'm', 'j', 'l', 'k', 'o');
-    
-    // Restore inventory after reset
+
     p1.setInventory(p1Inventory);
     p2.setInventory(p2Inventory);
-    
+
     p1.draw();
     p2.draw();
-    return true;  // Success
+
+    return true;
 }
+
 void Game::printHUD(int messageTimer, string displayMessage) {
     int x = level.getLegendX();
     int y = level.getLegendY();

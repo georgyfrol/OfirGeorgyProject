@@ -1,27 +1,5 @@
-180 RIDDLE What has roots as nobody sees,\n                    Is taller than trees,\n                    Up, up it goes,\n                    And yet never grows?|mountain|CORRECT
-232 RIDDLE Alive without breath,\n                    As cold as death;\n                    Never thirsty, ever drinking,\n                    All in mail never clinking|fish|CORRECT
-711 RIDDLE What has keys but can't open locks?|piano|CORRECT
-717 RIDDLE I speak without a mouth. What am I?|echo|CORRECT
-733 LEVEL_COMPLETE 1
-966 LEVEL_COMPLETE 2
-981 RIDDLE If you drop me I crack,\n                    But smile at me and I smile back.|mirror|CORRECT
-1047 LIFE_LOST Player1 50
-1228 RIDDLE What runs but never walks,\n                    Murmurs but never talks?|rivver|WRONG
-1228 LIFE_LOST Player2 10
-1262 RIDDLE What runs but never walks,\n                    Murmurs but never talks?|river|CORRECT
-1670 LIFE_LOST Player1 50
-1670 DEATH Player1
-1701 RIDDLE If you drop me I crack,\n                    But smile at me and I smile back.|mirror|CORRECT
-1825 LIFE_LOST Player1 50
-1843 LIFE_LOST Player1 50
-1843 DEATH Player1
-1862 RIDDLE If you drop me I crack,\n                    But smile at me and I smile back.|mirror|CORRECT
-2136 RIDDLE What runs but never walks,\n                    Murmurs but never talks?|river|CORRECT
-3085 RIDDLE What has a head and a tail\n                    But no body?|xoin|WRONG
-3085 LIFE_LOST Player2 10
-3128 RIDDLE What belongs to you,\n                    But others use it more than you?|name|CORRECT
-3152 RIDDLE What has a head and a tail\n                    But no body?|coin|CORRECT
-3172 RIDDLE The more of this there is,\n                    The less you see.|darkness|CORRECT
-3192 RIDDLE I'm tall when I'm young,\n                    And I'm short when I'm old.|candle|CORRECT
-3280 LEVEL_COMPLETE 3
-3280 GAME_END TotalScore:2800
+282 RIDDLE Alive without breath,\n                    As cold as death;\n                    Never thirsty, ever drinking,\n                    All in mail never clinking|fifififi|WRONG
+282 LIFE_LOST Player2 10
+288 RIDDLE Alive without breath,\n                    As cold as death;\n                    Never thirsty, ever drinking,\n                    All in mail never clinking|fish|CORRECT
+457 RIDDLE What has roots as nobody sees,\n                    Is taller than trees,\n                    Up, up it goes,\n                    And yet never grows?|jjjj|WRONG
+457 LIFE_LOST Player1 10
